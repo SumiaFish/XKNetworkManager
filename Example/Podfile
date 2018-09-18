@@ -1,0 +1,11 @@
+use_frameworks!
+
+target 'XKNetworkManager_Example' do
+  pod 'XKNetworkManager', :path => '../'
+
+  target 'XKNetworkManager_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end
