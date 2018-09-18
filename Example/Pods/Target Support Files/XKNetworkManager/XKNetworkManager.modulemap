@@ -1,0 +1,6 @@
+framework module XKNetworkManager {
+  umbrella header "XKNetworkManager-umbrella.h"
+
+  export *
+  module * { export * }
+}
