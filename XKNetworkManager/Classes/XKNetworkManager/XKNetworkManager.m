@@ -191,11 +191,11 @@
     NSInteger code    = [[responseObject objectForKey:@"code"] integerValue];
     BOOL result       = code == self.successfulCode;
     
-    if (success) {
-        success(responseObject,[responseObject objectForKey:@"data"],result,message);
-    }
-    
     if (result == NO) {
+        
+        if (failure) {
+            failure(nil, message);
+        }
         //未登录
         if ([[responseObject objectForKey:@"code"] integerValue] == self.logoutCode) {
             
@@ -203,6 +203,11 @@
         }
         else {
             if (self.xkReqeustCompletedButFailedAction) self.xkReqeustCompletedButFailedAction(code, message);
+        }
+    }
+    else {
+        if (success) {
+            success(responseObject,[responseObject objectForKey:@"data"],result,message);
         }
     }
 }

@@ -7,6 +7,7 @@
 //
 
 #import "XKViewController.h"
+#import <XKNetworkManager/XKNetworkManager.h>
 
 @interface XKViewController ()
 
