@@ -1,9 +1,9 @@
 {
   "name": "XKNetworkManager",
-  "version": "1.0.0",
-  "summary": "net work manager",
-  "description": "net work manager dependency afnetworking",
-  "homepage": "https://gitlab.com/kunhum",
+  "version": "1.0.2",
+  "summary": "网络请求",
+  "description": "基于AFNetworking封装",
+  "homepage": "https://github.com/kunhum/XKNetworkManager",
   "license": {
     "type": "MIT",
     "file": "LICENSE"
@@ -12,8 +12,8 @@
     "kunhum": "kunhum@163.com"
   },
   "source": {
-    "git": "https://gitlab.com/kunhum/xknetworkmanager.git",
-    "tag": "1.0.0"
+    "git": "https://github.com/kunhum/XKNetworkManager.git",
+    "tag": "1.0.2"
   },
   "platforms": {
     "ios": "8.0"

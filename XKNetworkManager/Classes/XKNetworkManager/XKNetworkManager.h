@@ -65,7 +65,7 @@
  @param success 成功回调
  @param failure 失败回调
  */
-- (void)xk_GETRequestWithUrlString:(NSString *)urlString parameters:(NSDictionary *)parameters progress:(void(^)(CGFloat progress))progress success:(void(^)(NSDictionary* responseDict, id dataValue, BOOL result, NSString *errorMessage))success failure:(void(^)(NSError *error, NSString *errorMessage))failure;
+- (void)xk_GETRequestWithUrlString:(NSString *)urlString parameters:(NSDictionary *)parameters progress:(void(^)(CGFloat progress))progress success:(void(^)(NSDictionary* responseDict, id dataValue, BOOL result, NSString *errorMessage))success failure:(void(^)(NSError *error, NSString *errorMessage, NSInteger code))failure;
 
 /**
  POST
@@ -76,7 +76,7 @@
  @param success 成功回调
  @param failure 失败回调
  */
-- (void)xk_POSTRequestWithUrlString:(NSString *)urlString parameters:(NSDictionary *)parameters progress:(void(^)(CGFloat progress))progress success:(void(^)(NSDictionary* responseDict, id dataValue, BOOL result, NSString *errorMessage))success failure:(void(^)(NSError *error, NSString *errorMessage))failure;
+- (void)xk_POSTRequestWithUrlString:(NSString *)urlString parameters:(NSDictionary *)parameters progress:(void(^)(CGFloat progress))progress success:(void(^)(NSDictionary* responseDict, id dataValue, BOOL result, NSString *errorMessage))success failure:(void(^)(NSError *error, NSString *errorMessage, NSInteger code))failure;
 
 /**
  上传图片，一张一张的上传

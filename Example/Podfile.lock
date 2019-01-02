@@ -14,7 +14,7 @@ PODS:
   - AFNetworking/Serialization (3.2.1)
   - AFNetworking/UIKit (3.2.1):
     - AFNetworking/NSURLSession
-  - XKNetworkManager (1.0.0):
+  - XKNetworkManager (1.0.2):
     - AFNetworking
 
 DEPENDENCIES:
@@ -30,7 +30,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   AFNetworking: b6f891fdfaed196b46c7a83cf209e09697b94057
-  XKNetworkManager: 8ddb76b1c2c00622bfba1a3469985207b61d47f9
+  XKNetworkManager: 60e1dd276a40855872feac6255d9f874a2cd3ac2
 
 PODFILE CHECKSUM: 0f72178ab925a627396a4008483809037d33c598
 

@@ -137,7 +137,7 @@
 }
 
 #pragma mark - GET
-- (void)xk_GETRequestWithUrlString:(NSString *)urlString parameters:(NSDictionary *)parameters progress:(void (^)(CGFloat))progress success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *))failure {
+- (void)xk_GETRequestWithUrlString:(NSString *)urlString parameters:(NSDictionary *)parameters progress:(void (^)(CGFloat))progress success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *, NSInteger))failure {
     
     NSLog(@"地址：%@\n参数：%@",urlString,parameters);
     
@@ -155,14 +155,14 @@
         if (error.code == NSURLErrorCannotConnectToHost) errorMsg = @"未能连接到服务器";
         else if (error.code == NSURLErrorTimedOut) errorMsg = @"连接超时";
         else errorMsg = @"连接失败";
-        if (failure) failure(error,errorMsg);
+        if (failure) failure(error,errorMsg,10086);
         
     }];
     
 }
 
 #pragma mark - POST
-- (void)xk_POSTRequestWithUrlString:(NSString *)urlString parameters:(NSDictionary *)parameters progress:(void (^)(CGFloat))progress success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *))failure {
+- (void)xk_POSTRequestWithUrlString:(NSString *)urlString parameters:(NSDictionary *)parameters progress:(void (^)(CGFloat))progress success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *, NSInteger))failure {
     
     
     NSLog(@"地址：%@\n参数：%@",urlString,parameters);
@@ -180,12 +180,12 @@
         if (error.code == NSURLErrorCannotConnectToHost) errorMsg = @"未能连接到服务器";
         else if (error.code == NSURLErrorTimedOut) errorMsg = @"连接超时";
         else errorMsg = @"连接失败";
-        if (failure) failure(error,errorMsg);
+        if (failure) failure(error,errorMsg,10086);
         
     }];
     
 }
-- (void)successfulAction:(id)responseObject success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *))failure {
+- (void)successfulAction:(id)responseObject success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *, NSInteger))failure {
     
     NSString *message = [responseObject objectForKey:self.messageKey];
     NSInteger code    = [[responseObject objectForKey:@"code"] integerValue];
@@ -194,7 +194,7 @@
     if (result == NO) {
         
         if (failure) {
-            failure(nil, message);
+            failure(nil, message, code);
         }
         //未登录
         if ([[responseObject objectForKey:@"code"] integerValue] == self.logoutCode) {
