@@ -211,6 +211,34 @@
         }
     }
 }
+- (void)xk_JsonPostRequestWithUrlString:(NSString *)urlString progress:(void (^)(CGFloat))progress parameters:(NSDictionary *)parameters success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *, NSInteger))failure {
+    
+    NSLog(@"地址：%@\n参数：%@",urlString,parameters);
+    __weak typeof(self) weakSelf = self;
+    
+    self.sessionManager.requestSerializer = [AFJSONRequestSerializer serializer];
+    
+    self.lastPOSTTask = [self.sessionManager POST:urlString parameters:parameters progress:^(NSProgress * _Nonnull uploadProgress) {
+        //上传进度
+        if (progress) progress(uploadProgress.fractionCompleted);
+        
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        
+        weakSelf.sessionManager.requestSerializer = [AFHTTPRequestSerializer serializer];
+        [weakSelf successfulAction:responseObject success:success failure:failure];
+        
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        
+        weakSelf.sessionManager.requestSerializer = [AFHTTPRequestSerializer serializer];
+        NSString *errorMsg = nil;
+        if (error.code == NSURLErrorCannotConnectToHost) errorMsg = @"未能连接到服务器";
+        else if (error.code == NSURLErrorTimedOut) errorMsg = @"连接超时";
+        else errorMsg = @"连接失败";
+        if (failure) failure(error,errorMsg,10086);
+        
+    }];
+    
+}
 
 #pragma mark - 取消task
 - (void)xk_cancelLastGETTask {
@@ -288,7 +316,6 @@
                     UIImage *image = [images objectAtIndex:i];
                     
                     NSData *imageData = UIImageJPEGRepresentation(image, 1.0);
-                    //            NSLog(@"%@",imageNames[i]);
                     [formData appendPartWithFileData:imageData name:imageNames[i] fileName:[imageNames[i] stringByAppendingString:@".jpg"] mimeType:@"image/jpeg"];
                 }
             }

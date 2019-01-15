@@ -78,6 +78,8 @@
  */
 - (void)xk_POSTRequestWithUrlString:(NSString *)urlString parameters:(NSDictionary *)parameters progress:(void(^)(CGFloat progress))progress success:(void(^)(NSDictionary* responseDict, id dataValue, BOOL result, NSString *errorMessage))success failure:(void(^)(NSError *error, NSString *errorMessage, NSInteger code))failure;
 
+- (void)xk_JsonPostRequestWithUrlString:(NSString *)urlString progress:(void(^)(CGFloat progress))progress parameters:(NSDictionary *)parameters success:(void(^)(NSDictionary* responseDict, id dataValue, BOOL result, NSString *errorMessage))success failure:(void(^)(NSError *error, NSString *errorMessage, NSInteger code))failure;
+
 /**
  上传图片，一张一张的上传
 
