@@ -22,6 +22,8 @@
 @property (nonatomic, assign) NSInteger logoutCode;
 ///返回消息的字段
 @property (nonatomic, copy)   NSString *messageKey;
+///code字段
+@property (nonatomic, copy)   NSString *codeKey;
 ///登录行为
 @property (nonatomic, copy)   void(^xkLoginAction)(void);
 ///请求完成但请求失败

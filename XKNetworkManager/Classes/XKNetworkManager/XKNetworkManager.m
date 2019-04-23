@@ -188,7 +188,7 @@
 - (void)successfulAction:(id)responseObject success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *, NSInteger))failure {
     
     NSString *message = [responseObject objectForKey:self.messageKey];
-    NSInteger code    = [[responseObject objectForKey:@"code"] integerValue];
+    NSInteger code    = [[responseObject objectForKey:self.codeKey] integerValue];
     BOOL result       = code == self.successfulCode;
     
     if (result == NO) {
@@ -197,7 +197,7 @@
             failure(nil, message, code);
         }
         //未登录
-        if ([[responseObject objectForKey:@"code"] integerValue] == self.logoutCode) {
+        if ([[responseObject objectForKey:self.codeKey] integerValue] == self.logoutCode) {
             
             if (self.xkLoginAction) self.xkLoginAction();
         }
@@ -339,7 +339,7 @@
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         
-        NSInteger code = [responseObject[@"code"] integerValue];
+        NSInteger code = [responseObject[self.codeKey] integerValue];
         
         if (code == weakSelf.logoutCode) {
             if (weakSelf.xkLoginAction) {
@@ -347,7 +347,7 @@
             }
         }
         //请求成功
-        if (success) success(responseObject,code == 1,responseObject[@"desc"]);
+        if (success) success(responseObject,code == 1,responseObject[self.messageKey]);
         
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         
