@@ -247,6 +247,9 @@
 				LastUpgradeCheck = 0720;
 				ORGANIZATIONNAME = kunhum;
 				TargetAttributes = {
+					6003F589195388D20070C39A = {
+						DevelopmentTeam = 87SBZ4G775;
+					};
 					6003F5AD195388D20070C39A = {
 						TestTargetID = 6003F589195388D20070C39A;
 					};
@@ -487,6 +490,7 @@
 			baseConfigurationReference = A376A5725CF13F05EDD8A16A /* Pods-XKNetworkManager_Example.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 87SBZ4G775;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "XKNetworkManager/XKNetworkManager-Prefix.pch";
 				INFOPLIST_FILE = "XKNetworkManager/XKNetworkManager-Info.plist";
@@ -503,6 +507,7 @@
 			baseConfigurationReference = 6CA7FF38EEE17867382F2A04 /* Pods-XKNetworkManager_Example.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 87SBZ4G775;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "XKNetworkManager/XKNetworkManager-Prefix.pch";
 				INFOPLIST_FILE = "XKNetworkManager/XKNetworkManager-Info.plist";
