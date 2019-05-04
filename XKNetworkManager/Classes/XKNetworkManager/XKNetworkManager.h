@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "AFNetworking.h"
 
 #define XK_NetworkManager [XKNetworkManager shareManager]
 
@@ -28,6 +29,8 @@
 @property (nonatomic, copy)   void(^xkLoginAction)(void);
 ///请求完成但请求失败
 @property (nonatomic, copy)   void(^xkReqeustCompletedButFailedAction)(NSInteger code, NSString *message);
+///配置manager
+@property (nonatomic, copy) void(^xkConfigSessionManager)(AFHTTPSessionManager *manager);
 
 ///单例
 + (instancetype)shareManager;
@@ -67,7 +70,7 @@
  @param success 成功回调
  @param failure 失败回调
  */
-- (void)xk_GETRequestWithUrlString:(NSString *)urlString parameters:(NSDictionary *)parameters progress:(void(^)(CGFloat progress))progress success:(void(^)(NSDictionary* responseDict, id dataValue, BOOL result, NSString *errorMessage))success failure:(void(^)(NSError *error, NSString *errorMessage, NSInteger code))failure;
+- (void)xk_GETRequestWithUrlString:(NSString *)urlString parameters:(id)parameters progress:(void(^)(CGFloat progress))progress success:(void(^)(NSDictionary* responseDict, id dataValue, BOOL result, NSString *errorMessage))success failure:(void(^)(NSError *error, NSString *errorMessage, NSInteger code))failure;
 
 /**
  POST
@@ -78,7 +81,7 @@
  @param success 成功回调
  @param failure 失败回调
  */
-- (void)xk_POSTRequestWithUrlString:(NSString *)urlString parameters:(NSDictionary *)parameters progress:(void(^)(CGFloat progress))progress success:(void(^)(NSDictionary* responseDict, id dataValue, BOOL result, NSString *errorMessage))success failure:(void(^)(NSError *error, NSString *errorMessage, NSInteger code))failure;
+- (void)xk_POSTRequestWithUrlString:(NSString *)urlString parameters:(id)parameters progress:(void(^)(CGFloat progress))progress success:(void(^)(NSDictionary* responseDict, id dataValue, BOOL result, NSString *errorMessage))success failure:(void(^)(NSError *error, NSString *errorMessage, NSInteger code))failure;
 
 - (void)xk_JsonPostRequestWithUrlString:(NSString *)urlString progress:(void(^)(CGFloat progress))progress parameters:(NSDictionary *)parameters success:(void(^)(NSDictionary* responseDict, id dataValue, BOOL result, NSString *errorMessage))success failure:(void(^)(NSError *error, NSString *errorMessage, NSInteger code))failure;
 
@@ -92,7 +95,7 @@
  @param success 成功回调
  @param failure 失败回调
  */
-- (void)xk_uploadImages:(NSArray *)images toURL:(NSString *)urlString parameters:(NSDictionary *)parameters progress:(void (^)(CGFloat progress, NSInteger index))progress success:(void (^)(id responseObject, NSInteger index, BOOL finished))success failure:(void (^)(NSError *error,NSInteger index))failure;
+- (void)xk_uploadImages:(NSArray *)images toURL:(NSString *)urlString parameters:(id)parameters progress:(void (^)(CGFloat progress, NSInteger index))progress success:(void (^)(id responseObject, NSInteger index, BOOL finished))success failure:(void (^)(NSError *error,NSInteger index))failure;
 
 /**
  批量上传图片,一次性上传
@@ -105,7 +108,20 @@
  @param success 成功回调
  @param failure 失败回调
  */
-- (void)xk_uploadImages:(NSArray *)images toURL:(NSString *)urlString parameters:(NSDictionary *)parameters imageNmaes:(NSArray *)imageNames progress:(void (^)(CGFloat progress))progress success:(void (^)(NSDictionary *responseDict, BOOL result, NSString *message))success failure:(void (^)(NSError *error, NSString *errorMessage))failure;
+- (void)xk_uploadImages:(NSArray *)images toURL:(NSString *)urlString parameters:(id)parameters imageNmaes:(NSArray *)imageNames progress:(void (^)(CGFloat progress))progress success:(void (^)(NSDictionary *responseDict, BOOL result, NSString *message))success failure:(void (^)(NSError *error, NSString *errorMessage))failure;
+
+/**
+ 上传视频
+ 
+ @param videos 视频
+ @param urlString 地址
+ @param parameters 参数
+ @param videoNames 视频名
+ @param progress 进度回调
+ @param success 成功回调
+ @param failure 失败回调
+ */
+- (void)xk_uploadVideos:(NSArray *)videos toURL:(NSString *)urlString parameters:(id)parameters videoNmaes:(NSArray *)videoNames progress:(void (^)(CGFloat progress))progress success:(void (^)(NSDictionary *responseDict, BOOL result, NSString *message))success failure:(void (^)(NSError *error, NSString *errorMessage))failure;
 
 ///取消上一个POST
 - (void)xk_cancelLastPOSTTask;

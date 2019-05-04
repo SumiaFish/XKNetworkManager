@@ -7,7 +7,6 @@
 //
 
 #import "XKNetworkManager.h"
-#import "AFNetworking.h"
 
 #define XKWeakSelf __weak typeof(self) weakSelf = self;
 
@@ -39,11 +38,11 @@
         //    manager.securityPolicy = securityPolicy;
         self.sessionManager.requestSerializer  = [AFHTTPRequestSerializer serializer];
         self.sessionManager.responseSerializer = [AFJSONResponseSerializer serializer];
-        NSMutableSet *types = [NSMutableSet setWithSet:self.sessionManager.responseSerializer.acceptableContentTypes];
-        [types addObjectsFromArray:@[@"application/json", @"text/html", @"text/json", @"image/png", @"text/plain"]];
-        self.sessionManager.responseSerializer.acceptableContentTypes = types;
-        
         self.timeout = 10;
+        
+//        NSMutableSet *types = [NSMutableSet setWithSet:self.sessionManager.responseSerializer.acceptableContentTypes];
+//        [types addObjectsFromArray:@[@"application/json", @"text/html", @"text/json", @"image/png", @"text/plain"]];
+//        self.sessionManager.responseSerializer.acceptableContentTypes = types;
     }
     return self;
 }
@@ -137,10 +136,10 @@
 }
 
 #pragma mark - GET
-- (void)xk_GETRequestWithUrlString:(NSString *)urlString parameters:(NSDictionary *)parameters progress:(void (^)(CGFloat))progress success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *, NSInteger))failure {
+- (void)xk_GETRequestWithUrlString:(NSString *)urlString parameters:(id)parameters progress:(void (^)(CGFloat))progress success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *, NSInteger))failure {
     
     NSLog(@"地址：%@\n参数：%@",urlString,parameters);
-    
+    !self.xkConfigSessionManager ?: self.xkConfigSessionManager(self.sessionManager);
     XKWeakSelf
     self.lastGETTask = [self.sessionManager GET:urlString parameters:parameters progress:^(NSProgress * _Nonnull downloadProgress) {
         //上传进度
@@ -162,11 +161,11 @@
 }
 
 #pragma mark - POST
-- (void)xk_POSTRequestWithUrlString:(NSString *)urlString parameters:(NSDictionary *)parameters progress:(void (^)(CGFloat))progress success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *, NSInteger))failure {
-    
+- (void)xk_POSTRequestWithUrlString:(NSString *)urlString parameters:(id)parameters progress:(void (^)(CGFloat))progress success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *, NSInteger))failure {
     
     NSLog(@"地址：%@\n参数：%@",urlString,parameters);
     
+    !self.xkConfigSessionManager ?: self.xkConfigSessionManager(self.sessionManager);
     self.lastPOSTTask = [self.sessionManager POST:urlString parameters:parameters progress:^(NSProgress * _Nonnull uploadProgress) {
         //上传进度
         if (progress) progress(uploadProgress.fractionCompleted);
@@ -211,12 +210,13 @@
         }
     }
 }
-- (void)xk_JsonPostRequestWithUrlString:(NSString *)urlString progress:(void (^)(CGFloat))progress parameters:(NSDictionary *)parameters success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *, NSInteger))failure {
+- (void)xk_JsonPostRequestWithUrlString:(NSString *)urlString progress:(void (^)(CGFloat))progress parameters:(id)parameters success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *, NSInteger))failure {
     
     NSLog(@"地址：%@\n参数：%@",urlString,parameters);
     __weak typeof(self) weakSelf = self;
     
     self.sessionManager.requestSerializer = [AFJSONRequestSerializer serializer];
+    !self.xkConfigSessionManager ?: self.xkConfigSessionManager(self.sessionManager);
     
     self.lastPOSTTask = [self.sessionManager POST:urlString parameters:parameters progress:^(NSProgress * _Nonnull uploadProgress) {
         //上传进度
@@ -251,12 +251,12 @@
     [self.sessionManager.operationQueue cancelAllOperations];
 }
 #pragma mark - 上传图片
-- (void)xk_uploadImages:(NSArray *)images toURL:(NSString *)urlString parameters:(NSDictionary *)parameters progress:(void (^)(CGFloat, NSInteger))progress success:(void (^)(id, NSInteger, BOOL))success failure:(void (^)(NSError *, NSInteger))failure {
-    
+- (void)xk_uploadImages:(NSArray *)images toURL:(NSString *)urlString parameters:(id)parameters progress:(void (^)(CGFloat, NSInteger))progress success:(void (^)(id, NSInteger, BOOL))success failure:(void (^)(NSError *, NSInteger))failure {
+    !self.xkConfigSessionManager ?: self.xkConfigSessionManager(self.sessionManager);
     [self _uploadImages:images toURL:urlString parameters:parameters progress:progress success:success failure:failure index:0];
     
 }
-- (void)_uploadImages:(NSArray *)images toURL:(NSString *)urlString parameters:(NSDictionary *)parameters progress:(void (^)(CGFloat progress, NSInteger index))progress success:(void (^)(id responseObject, NSInteger index, BOOL finished))success failure:(void (^)(NSError *error, NSInteger index))failure index:(NSInteger)index {
+- (void)_uploadImages:(NSArray *)images toURL:(NSString *)urlString parameters:(id)parameters progress:(void (^)(CGFloat progress, NSInteger index))progress success:(void (^)(id responseObject, NSInteger index, BOOL finished))success failure:(void (^)(NSError *error, NSInteger index))failure index:(NSInteger)index {
     
     XKWeakSelf
     [self.sessionManager POST:urlString parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
@@ -299,10 +299,10 @@
 }
 
 #pragma mark 批量上传图片
-- (void)xk_uploadImages:(NSArray *)images toURL:(NSString *)urlString parameters:(NSDictionary *)parameters imageNmaes:(NSArray *)imageNames progress:(void (^)(CGFloat))progress success:(void (^)(NSDictionary *, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *))failure {
+- (void)xk_uploadImages:(NSArray *)images toURL:(NSString *)urlString parameters:(id)parameters imageNmaes:(NSArray *)imageNames progress:(void (^)(CGFloat))progress success:(void (^)(NSDictionary *, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *))failure {
     
     NSLog(@"%@\n%@",urlString,parameters);
-    
+    !self.xkConfigSessionManager ?: self.xkConfigSessionManager(self.sessionManager);
     XKWeakSelf
     [self.sessionManager POST:urlString parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
         
@@ -347,7 +347,56 @@
             }
         }
         //请求成功
-        if (success) success(responseObject,code == 1,responseObject[self.messageKey]);
+        if (success) success(responseObject,code == self.successfulCode,responseObject[self.messageKey]);
+        
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        
+        //请求失败
+        NSString *errorMsg = nil;
+        if (error.code == NSURLErrorCannotConnectToHost) errorMsg = @"未能连接到服务器";
+        else if (error.code == NSURLErrorTimedOut) errorMsg = @"连接超时";
+        else errorMsg = @"连接失败";
+        if (failure) failure(error,errorMsg);
+    }];
+    
+}
+#pragma mark 上传视频
+- (void)xk_uploadVideos:(NSArray *)videos toURL:(NSString *)urlString parameters:(id)parameters videoNmaes:(NSArray *)videoNames progress:(void (^)(CGFloat progress))progress success:(void (^)(NSDictionary *responseDict, BOOL result, NSString *message))success failure:(void (^)(NSError *error, NSString *errorMessage))failure {
+    
+    
+    NSLog(@"%@\n%@",urlString,parameters);
+    !self.xkConfigSessionManager ?: self.xkConfigSessionManager(self.sessionManager);
+    XKWeakSelf
+    [self.sessionManager POST:urlString parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+        
+        if (videos.count > 0) {
+            
+            for (int i = 0; i < videos.count; i++) {
+                
+                NSData *videoData = [NSData dataWithContentsOfFile:videos[i]];
+                
+                [formData appendPartWithFileData:videoData name:videoNames[i] fileName:[videoNames[i] stringByAppendingString:@".mp4"] mimeType:@"application/octet-stream"];
+                
+            }
+            
+        }
+        
+    } progress:^(NSProgress * _Nonnull uploadProgress) {
+        
+        //打印下上传进度
+        if (progress) progress(uploadProgress.fractionCompleted);
+        
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        
+        NSInteger code = [responseObject[self.codeKey] integerValue];
+        
+        if (code == weakSelf.logoutCode) {
+            if (weakSelf.xkLoginAction) {
+                weakSelf.xkLoginAction();
+            }
+        }
+        //请求成功
+        if (success) success(responseObject,code == self.successfulCode,responseObject[self.messageKey]);
         
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         

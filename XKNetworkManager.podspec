@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'XKNetworkManager'
-  s.version          = '1.0.4'
+  s.version          = '1.0.5'
   s.summary          = '网络请求'
 
 # This description is used to generate tags and improve search results.
