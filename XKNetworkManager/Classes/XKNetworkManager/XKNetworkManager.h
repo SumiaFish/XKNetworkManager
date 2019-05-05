@@ -123,6 +123,21 @@
  */
 - (void)xk_uploadVideos:(NSArray *)videos toURL:(NSString *)urlString parameters:(id)parameters videoNmaes:(NSArray *)videoNames progress:(void (^)(CGFloat progress))progress success:(void (^)(NSDictionary *responseDict, BOOL result, NSString *message))success failure:(void (^)(NSError *error, NSString *errorMessage))failure;
 
+/**
+ 上传视频
+
+ @param videoUrl 视频url
+ @param urlString 接口地址
+ @param parameters 参数
+ @param videoName 是拼命
+ @param coverImage 视频封面图
+ @param imageName 封面图名字
+ @param progress 进度回调
+ @param success 成功回调
+ @param failure 失败回调
+ */
+- (void)xk_uploadVideo:(NSURL *)videoUrl toURL:(NSString *)urlString parameters:(id)parameters videoName:(NSString *)videoName coverImage:(NSData *)coverImage imageName:(NSString *)imageName  progress:(void (^)(CGFloat progress))progress success:(void (^)(NSDictionary *responseDict, BOOL result, NSString *message))success failure:(void (^)(NSError *error, NSString *errorMessage))failure;
+
 ///取消上一个POST
 - (void)xk_cancelLastPOSTTask;
 ///取消上一个GET

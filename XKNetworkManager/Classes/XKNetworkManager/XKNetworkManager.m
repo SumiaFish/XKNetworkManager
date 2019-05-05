@@ -410,4 +410,52 @@
     
 }
 
+#pragma mark 上传视频
+- (void)xk_uploadVideo:(NSURL *)videoUrl toURL:(NSString *)urlString parameters:(NSDictionary *)parameters videoName:(NSString *)videoName coverImage:(NSData *)coverImage imageName:(NSString *)imageName progress:(void (^)(CGFloat))progress success:(void (^)(NSDictionary *, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *))failure {
+    
+    NSLog(@"%@\n%@",urlString,parameters);
+    
+    XKWeakSelf
+    [self.sessionManager POST:urlString parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+        
+        if (coverImage) {
+            
+            //            NSData *imageData = UIImageJPEGRepresentation(coverImage, 1.0);
+            [formData appendPartWithFileData:coverImage name:imageName fileName:[imageName stringByAppendingString:@".jpg"] mimeType:@"image/jpeg"];
+        }
+        if (videoUrl) {
+            NSData *videoData = [NSData dataWithContentsOfURL:videoUrl];
+            [formData appendPartWithFileData:videoData name:videoName fileName:[videoName stringByAppendingString:@".mov"] mimeType:@"video/quicktime"];
+        }
+        
+        
+    } progress:^(NSProgress * _Nonnull uploadProgress) {
+        
+        //打印下上传进度
+        if (progress) progress(uploadProgress.fractionCompleted);
+        
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        
+        NSInteger code = [responseObject[@"code"] integerValue];
+        
+        if (code == weakSelf.logoutCode) {
+            if (weakSelf.xkLoginAction) {
+                weakSelf.xkLoginAction();
+            }
+        }
+        //请求成功
+        if (success) success(responseObject,code == 1,responseObject[@"desc"]);
+        
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        
+        //请求失败
+        NSString *errorMsg = nil;
+        if (error.code == NSURLErrorCannotConnectToHost) errorMsg = @"未能连接到服务器";
+        else if (error.code == NSURLErrorTimedOut) errorMsg = @"连接超时";
+        else errorMsg = @"连接失败";
+        if (failure) failure(error,errorMsg);
+    }];
+    
+}
+
 @end
