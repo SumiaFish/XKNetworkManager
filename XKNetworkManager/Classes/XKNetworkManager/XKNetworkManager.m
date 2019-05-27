@@ -40,9 +40,9 @@
         self.sessionManager.responseSerializer = [AFJSONResponseSerializer serializer];
         self.timeout = 10;
         
-//        NSMutableSet *types = [NSMutableSet setWithSet:self.sessionManager.responseSerializer.acceptableContentTypes];
-//        [types addObjectsFromArray:@[@"application/json", @"text/html", @"text/json", @"image/png", @"text/plain"]];
-//        self.sessionManager.responseSerializer.acceptableContentTypes = types;
+        //        NSMutableSet *types = [NSMutableSet setWithSet:self.sessionManager.responseSerializer.acceptableContentTypes];
+        //        [types addObjectsFromArray:@[@"application/json", @"text/html", @"text/json", @"image/png", @"text/plain"]];
+        //        self.sessionManager.responseSerializer.acceptableContentTypes = types;
     }
     return self;
 }
@@ -122,7 +122,7 @@
 - (AFSecurityPolicy *)_getSecurityPolicy {
     
     //https
-//    NSString *cerPath = [[NSBundle mainBundle] pathForResource:@"https" ofType:@"cer"];
+    //    NSString *cerPath = [[NSBundle mainBundle] pathForResource:@"https" ofType:@"cer"];
     NSData * certData =[NSData dataWithContentsOfFile:self.httpsCerPath]; //cerPath
     NSSet * certSet = [[NSSet alloc] initWithObjects:certData, nil];
     AFSecurityPolicy *securityPolicy = [AFSecurityPolicy policyWithPinningMode:AFSSLPinningModeNone];
@@ -138,7 +138,7 @@
 #pragma mark - GET
 - (void)xk_GETRequestWithUrlString:(NSString *)urlString parameters:(id)parameters progress:(void (^)(CGFloat))progress success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *, NSInteger))failure {
     
-    NSLog(@"地址：%@\n参数：%@",urlString,parameters);
+    NSLog(@"path: %@\nparameters: %@",urlString,parameters);
     !self.xkConfigSessionManager ?: self.xkConfigSessionManager(self.sessionManager);
     XKWeakSelf
     self.lastGETTask = [self.sessionManager GET:urlString parameters:parameters progress:^(NSProgress * _Nonnull downloadProgress) {
@@ -153,8 +153,8 @@
         NSString *errorMsg = nil;
         if (error.code == NSURLErrorCannotConnectToHost) errorMsg = @"未能连接到服务器";
         else if (error.code == NSURLErrorTimedOut) errorMsg = @"连接超时";
-        else errorMsg = @"连接失败";
-        if (failure) failure(error,errorMsg,10086);
+        else errorMsg = error.localizedDescription;
+        if (failure) failure(error,errorMsg,error.code);
         
     }];
     
@@ -163,7 +163,7 @@
 #pragma mark - POST
 - (void)xk_POSTRequestWithUrlString:(NSString *)urlString parameters:(id)parameters progress:(void (^)(CGFloat))progress success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *, NSInteger))failure {
     
-    NSLog(@"地址：%@\n参数：%@",urlString,parameters);
+    NSLog(@"path: %@\nparameters: %@",urlString,parameters);
     
     !self.xkConfigSessionManager ?: self.xkConfigSessionManager(self.sessionManager);
     self.lastPOSTTask = [self.sessionManager POST:urlString parameters:parameters progress:^(NSProgress * _Nonnull uploadProgress) {
@@ -173,13 +173,13 @@
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         
         [self successfulAction:responseObject success:success failure:failure];
-       
+        
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSString *errorMsg = nil;
         if (error.code == NSURLErrorCannotConnectToHost) errorMsg = @"未能连接到服务器";
         else if (error.code == NSURLErrorTimedOut) errorMsg = @"连接超时";
-        else errorMsg = @"连接失败";
-        if (failure) failure(error,errorMsg,10086);
+        else errorMsg = error.localizedDescription;
+        if (failure) failure(error,errorMsg,error.code);
         
     }];
     
@@ -212,7 +212,7 @@
 }
 - (void)xk_JsonPostRequestWithUrlString:(NSString *)urlString progress:(void (^)(CGFloat))progress parameters:(id)parameters success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *, NSInteger))failure {
     
-    NSLog(@"地址：%@\n参数：%@",urlString,parameters);
+    NSLog(@"path: %@\nparameters: %@",urlString,parameters);
     __weak typeof(self) weakSelf = self;
     
     self.sessionManager.requestSerializer = [AFJSONRequestSerializer serializer];
@@ -233,8 +233,8 @@
         NSString *errorMsg = nil;
         if (error.code == NSURLErrorCannotConnectToHost) errorMsg = @"未能连接到服务器";
         else if (error.code == NSURLErrorTimedOut) errorMsg = @"连接超时";
-        else errorMsg = @"连接失败";
-        if (failure) failure(error,errorMsg,10086);
+        else errorMsg = error.localizedDescription;
+        if (failure) failure(error,errorMsg,error.code);
         
     }];
     
@@ -291,7 +291,7 @@
         
         //请求失败
         if (failure) {
-//            failure(error,index);
+            //            failure(error,index);
             if (failure) failure(error,index);
         }
     }];
@@ -355,7 +355,7 @@
         NSString *errorMsg = nil;
         if (error.code == NSURLErrorCannotConnectToHost) errorMsg = @"未能连接到服务器";
         else if (error.code == NSURLErrorTimedOut) errorMsg = @"连接超时";
-        else errorMsg = @"连接失败";
+        else errorMsg = error.localizedDescription;
         if (failure) failure(error,errorMsg);
     }];
     
@@ -404,55 +404,7 @@
         NSString *errorMsg = nil;
         if (error.code == NSURLErrorCannotConnectToHost) errorMsg = @"未能连接到服务器";
         else if (error.code == NSURLErrorTimedOut) errorMsg = @"连接超时";
-        else errorMsg = @"连接失败";
-        if (failure) failure(error,errorMsg);
-    }];
-    
-}
-
-#pragma mark 上传视频
-- (void)xk_uploadVideo:(NSURL *)videoUrl toURL:(NSString *)urlString parameters:(NSDictionary *)parameters videoName:(NSString *)videoName coverImage:(NSData *)coverImage imageName:(NSString *)imageName progress:(void (^)(CGFloat))progress success:(void (^)(NSDictionary *, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *))failure {
-    
-    NSLog(@"%@\n%@",urlString,parameters);
-    
-    XKWeakSelf
-    [self.sessionManager POST:urlString parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
-        
-        if (coverImage) {
-            
-            //            NSData *imageData = UIImageJPEGRepresentation(coverImage, 1.0);
-            [formData appendPartWithFileData:coverImage name:imageName fileName:[imageName stringByAppendingString:@".jpg"] mimeType:@"image/jpeg"];
-        }
-        if (videoUrl) {
-            NSData *videoData = [NSData dataWithContentsOfURL:videoUrl];
-            [formData appendPartWithFileData:videoData name:videoName fileName:[videoName stringByAppendingString:@".mov"] mimeType:@"video/quicktime"];
-        }
-        
-        
-    } progress:^(NSProgress * _Nonnull uploadProgress) {
-        
-        //打印下上传进度
-        if (progress) progress(uploadProgress.fractionCompleted);
-        
-    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        
-        NSInteger code = [responseObject[@"code"] integerValue];
-        
-        if (code == weakSelf.logoutCode) {
-            if (weakSelf.xkLoginAction) {
-                weakSelf.xkLoginAction();
-            }
-        }
-        //请求成功
-        if (success) success(responseObject,code == 1,responseObject[@"desc"]);
-        
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        
-        //请求失败
-        NSString *errorMsg = nil;
-        if (error.code == NSURLErrorCannotConnectToHost) errorMsg = @"未能连接到服务器";
-        else if (error.code == NSURLErrorTimedOut) errorMsg = @"连接超时";
-        else errorMsg = @"连接失败";
+        else errorMsg = error.localizedDescription;
         if (failure) failure(error,errorMsg);
     }];
     
