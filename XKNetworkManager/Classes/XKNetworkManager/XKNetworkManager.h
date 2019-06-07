@@ -13,6 +13,7 @@
 
 @interface XKNetworkManager : NSObject
 
+@property (nonatomic, copy) NSString *baseURL;
 ///请求超时,默认十秒
 @property (nonatomic, assign) NSInteger timeout;
 ///https证书路径

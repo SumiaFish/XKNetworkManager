@@ -138,6 +138,9 @@
 #pragma mark - GET
 - (void)xk_GETRequestWithUrlString:(NSString *)urlString parameters:(id)parameters progress:(void (^)(CGFloat))progress success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *, NSInteger))failure {
     
+    if (self.baseURL && [urlString containsString:@"http"] == NO) {
+        urlString = [self.baseURL stringByAppendingPathComponent:urlString];
+    }
     NSLog(@"path: %@\nparameters: %@",urlString,parameters);
     !self.xkConfigSessionManager ?: self.xkConfigSessionManager(self.sessionManager);
     XKWeakSelf
@@ -163,6 +166,9 @@
 #pragma mark - POST
 - (void)xk_POSTRequestWithUrlString:(NSString *)urlString parameters:(id)parameters progress:(void (^)(CGFloat))progress success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *, NSInteger))failure {
     
+    if (self.baseURL && [urlString containsString:@"http"] == NO) {
+        urlString = [self.baseURL stringByAppendingPathComponent:urlString];
+    }
     NSLog(@"path: %@\nparameters: %@",urlString,parameters);
     
     !self.xkConfigSessionManager ?: self.xkConfigSessionManager(self.sessionManager);
@@ -212,6 +218,9 @@
 }
 - (void)xk_JsonPostRequestWithUrlString:(NSString *)urlString progress:(void (^)(CGFloat))progress parameters:(id)parameters success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *, NSInteger))failure {
     
+    if (self.baseURL && [urlString containsString:@"http"] == NO) {
+        urlString = [self.baseURL stringByAppendingPathComponent:urlString];
+    }
     NSLog(@"path: %@\nparameters: %@",urlString,parameters);
     __weak typeof(self) weakSelf = self;
     
