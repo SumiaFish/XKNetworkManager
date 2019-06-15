@@ -261,6 +261,12 @@
 }
 #pragma mark - 上传图片
 - (void)xk_uploadImages:(NSArray *)images toURL:(NSString *)urlString parameters:(id)parameters progress:(void (^)(CGFloat, NSInteger))progress success:(void (^)(id, NSInteger, BOOL))success failure:(void (^)(NSError *, NSInteger))failure {
+    
+    if (self.baseURL && [urlString containsString:@"http"] == NO) {
+        urlString = [self.baseURL stringByAppendingPathComponent:urlString];
+    }
+    NSLog(@"path: %@\nparameters: %@",urlString,parameters);
+    
     !self.xkConfigSessionManager ?: self.xkConfigSessionManager(self.sessionManager);
     [self _uploadImages:images toURL:urlString parameters:parameters progress:progress success:success failure:failure index:0];
     
@@ -310,7 +316,11 @@
 #pragma mark 批量上传图片
 - (void)xk_uploadImages:(NSArray *)images toURL:(NSString *)urlString parameters:(id)parameters imageNmaes:(NSArray *)imageNames progress:(void (^)(CGFloat))progress success:(void (^)(NSDictionary *, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *))failure {
     
-    NSLog(@"%@\n%@",urlString,parameters);
+    if (self.baseURL && [urlString containsString:@"http"] == NO) {
+        urlString = [self.baseURL stringByAppendingPathComponent:urlString];
+    }
+    NSLog(@"path: %@\nparameters: %@",urlString,parameters);
+    
     !self.xkConfigSessionManager ?: self.xkConfigSessionManager(self.sessionManager);
     XKWeakSelf
     [self.sessionManager POST:urlString parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
@@ -372,8 +382,11 @@
 #pragma mark 上传视频
 - (void)xk_uploadVideos:(NSArray *)videos toURL:(NSString *)urlString parameters:(id)parameters videoNmaes:(NSArray *)videoNames progress:(void (^)(CGFloat progress))progress success:(void (^)(NSDictionary *responseDict, BOOL result, NSString *message))success failure:(void (^)(NSError *error, NSString *errorMessage))failure {
     
+    if (self.baseURL && [urlString containsString:@"http"] == NO) {
+        urlString = [self.baseURL stringByAppendingPathComponent:urlString];
+    }
+    NSLog(@"path: %@\nparameters: %@",urlString,parameters);
     
-    NSLog(@"%@\n%@",urlString,parameters);
     !self.xkConfigSessionManager ?: self.xkConfigSessionManager(self.sessionManager);
     XKWeakSelf
     [self.sessionManager POST:urlString parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
