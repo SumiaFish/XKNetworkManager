@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'XKNetworkManager'
-  s.version          = '1.1.2'
+  s.version          = '1.1.3'
   s.summary          = '网络请求'
 
 # This description is used to generate tags and improve search results.
@@ -36,5 +36,5 @@ Pod::Spec.new do |s|
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
-  s.dependency 'AFNetworking'
+  s.dependency 'AFNetworking','~> 3.2.1'
 end
