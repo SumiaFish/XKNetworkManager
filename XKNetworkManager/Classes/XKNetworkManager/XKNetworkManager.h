@@ -36,6 +36,8 @@
 ///单例
 + (instancetype)shareManager;
 
+- (AFHTTPSessionManager *)sessionManager;
+
 /**
  直接拼接
 
@@ -71,7 +73,7 @@
  @param success 成功回调
  @param failure 失败回调
  */
-- (void)xk_GETRequestWithUrlString:(NSString *)urlString parameters:(id)parameters progress:(void(^)(CGFloat progress))progress success:(void(^)(NSDictionary* responseDict, id dataValue, BOOL result, NSString *errorMessage))success failure:(void(^)(NSError *error, NSString *errorMessage, NSInteger code))failure;
+- (NSURLSessionDataTask *)xk_GETRequestWithUrlString:(NSString *)urlString parameters:(id)parameters progress:(void(^)(CGFloat progress))progress success:(void(^)(NSDictionary* responseDict, id dataValue, BOOL result, NSString *errorMessage))success failure:(void(^)(NSError *error, NSString *errorMessage, NSInteger code))failure;
 
 /**
  POST
@@ -82,9 +84,9 @@
  @param success 成功回调
  @param failure 失败回调
  */
-- (void)xk_POSTRequestWithUrlString:(NSString *)urlString parameters:(id)parameters progress:(void(^)(CGFloat progress))progress success:(void(^)(NSDictionary* responseDict, id dataValue, BOOL result, NSString *errorMessage))success failure:(void(^)(NSError *error, NSString *errorMessage, NSInteger code))failure;
+- (NSURLSessionDataTask *)xk_POSTRequestWithUrlString:(NSString *)urlString parameters:(id)parameters progress:(void(^)(CGFloat progress))progress success:(void(^)(NSDictionary* responseDict, id dataValue, BOOL result, NSString *errorMessage))success failure:(void(^)(NSError *error, NSString *errorMessage, NSInteger code))failure;
 
-- (void)xk_JsonPostRequestWithUrlString:(NSString *)urlString progress:(void(^)(CGFloat progress))progress parameters:(NSDictionary *)parameters success:(void(^)(NSDictionary* responseDict, id dataValue, BOOL result, NSString *errorMessage))success failure:(void(^)(NSError *error, NSString *errorMessage, NSInteger code))failure;
+- (NSURLSessionDataTask *)xk_JsonPostRequestWithUrlString:(NSString *)urlString progress:(void(^)(CGFloat progress))progress parameters:(NSDictionary *)parameters success:(void(^)(NSDictionary* responseDict, id dataValue, BOOL result, NSString *errorMessage))success failure:(void(^)(NSError *error, NSString *errorMessage, NSInteger code))failure;
 
 /**
  上传图片，一张一张的上传
@@ -96,7 +98,7 @@
  @param success 成功回调
  @param failure 失败回调
  */
-- (void)xk_uploadImages:(NSArray *)images toURL:(NSString *)urlString parameters:(id)parameters progress:(void (^)(CGFloat progress, NSInteger index))progress success:(void (^)(id responseObject, NSInteger index, BOOL finished))success failure:(void (^)(NSError *error,NSInteger index))failure;
+- (NSURLSessionDataTask *)xk_uploadImages:(NSArray *)images toURL:(NSString *)urlString parameters:(id)parameters progress:(void (^)(CGFloat progress, NSInteger index))progress success:(void (^)(id responseObject, NSInteger index, BOOL finished))success failure:(void (^)(NSError *error,NSInteger index))failure;
 
 /**
  批量上传图片,一次性上传
@@ -109,7 +111,7 @@
  @param success 成功回调
  @param failure 失败回调
  */
-- (void)xk_uploadImages:(NSArray *)images toURL:(NSString *)urlString parameters:(id)parameters imageNmaes:(NSArray *)imageNames progress:(void (^)(CGFloat progress))progress success:(void (^)(NSDictionary *responseDict, BOOL result, NSString *message))success failure:(void (^)(NSError *error, NSString *errorMessage))failure;
+- (NSURLSessionDataTask *)xk_uploadImages:(NSArray *)images toURL:(NSString *)urlString parameters:(id)parameters imageNmaes:(NSArray *)imageNames progress:(void (^)(CGFloat progress))progress success:(void (^)(NSDictionary *responseDict, BOOL result, NSString *message))success failure:(void (^)(NSError *error, NSString *errorMessage))failure;
 
 /**
  上传视频
@@ -122,7 +124,7 @@
  @param success 成功回调
  @param failure 失败回调
  */
-- (void)xk_uploadVideos:(NSArray *)videos toURL:(NSString *)urlString parameters:(id)parameters videoNmaes:(NSArray *)videoNames progress:(void (^)(CGFloat progress))progress success:(void (^)(NSDictionary *responseDict, BOOL result, NSString *message))success failure:(void (^)(NSError *error, NSString *errorMessage))failure;
+- (NSURLSessionDataTask *)xk_uploadVideos:(NSArray *)videos toURL:(NSString *)urlString parameters:(id)parameters videoNmaes:(NSArray *)videoNames progress:(void (^)(CGFloat progress))progress success:(void (^)(NSDictionary *responseDict, BOOL result, NSString *message))success failure:(void (^)(NSError *error, NSString *errorMessage))failure;
 
 ///**
 // 上传视频

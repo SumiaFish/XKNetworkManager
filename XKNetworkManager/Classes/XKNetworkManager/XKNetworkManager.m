@@ -136,7 +136,7 @@
 }
 
 #pragma mark - GET
-- (void)xk_GETRequestWithUrlString:(NSString *)urlString parameters:(id)parameters progress:(void (^)(CGFloat))progress success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *, NSInteger))failure {
+- (NSURLSessionDataTask *)xk_GETRequestWithUrlString:(NSString *)urlString parameters:(id)parameters progress:(void (^)(CGFloat))progress success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *, NSInteger))failure {
     
     if (self.baseURL && [urlString containsString:@"http"] == NO) {
         urlString = [self.baseURL stringByAppendingPathComponent:urlString];
@@ -144,7 +144,7 @@
     NSLog(@"path: %@\nparameters: %@",urlString,parameters);
     !self.xkConfigSessionManager ?: self.xkConfigSessionManager(self.sessionManager);
     XKWeakSelf
-    self.lastGETTask = [self.sessionManager GET:urlString parameters:parameters progress:^(NSProgress * _Nonnull downloadProgress) {
+    NSURLSessionDataTask *task = self.lastGETTask = [self.sessionManager GET:urlString parameters:parameters progress:^(NSProgress * _Nonnull downloadProgress) {
         //上传进度
         if (progress) progress(downloadProgress.fractionCompleted);
         
@@ -161,10 +161,11 @@
         
     }];
     
+    return task;
 }
 
 #pragma mark - POST
-- (void)xk_POSTRequestWithUrlString:(NSString *)urlString parameters:(id)parameters progress:(void (^)(CGFloat))progress success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *, NSInteger))failure {
+- (NSURLSessionDataTask *)xk_POSTRequestWithUrlString:(NSString *)urlString parameters:(id)parameters progress:(void (^)(CGFloat))progress success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *, NSInteger))failure {
     
     if (self.baseURL && [urlString containsString:@"http"] == NO) {
         urlString = [self.baseURL stringByAppendingPathComponent:urlString];
@@ -172,13 +173,14 @@
     NSLog(@"path: %@\nparameters: %@",urlString,parameters);
     
     !self.xkConfigSessionManager ?: self.xkConfigSessionManager(self.sessionManager);
-    self.lastPOSTTask = [self.sessionManager POST:urlString parameters:parameters progress:^(NSProgress * _Nonnull uploadProgress) {
+    NSURLSessionDataTask *task = self.lastPOSTTask = [self.sessionManager POST:urlString parameters:parameters progress:^(NSProgress * _Nonnull uploadProgress) {
         //上传进度
         if (progress) progress(uploadProgress.fractionCompleted);
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         
-        [self successfulAction:responseObject success:success failure:failure];
+        !success ?: success(responseObject, nil, YES, @"");
+//        [self successfulAction:responseObject success:success failure:failure];
         
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSString *errorMsg = nil;
@@ -189,34 +191,39 @@
         
     }];
     
+    return task;
 }
-- (void)successfulAction:(id)responseObject success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *, NSInteger))failure {
+
+// 外部校验
+//- (void)successfulAction:(id)responseObject success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *, NSInteger))failure {
     
-    NSString *message = [responseObject objectForKey:self.messageKey];
-    NSInteger code    = [[responseObject objectForKey:self.codeKey] integerValue];
-    BOOL result       = code == self.successfulCode;
     
-    if (result == NO) {
-        
-        if (failure) {
-            failure(nil, message, code);
-        }
-        //未登录
-        if ([[responseObject objectForKey:self.codeKey] integerValue] == self.logoutCode) {
-            
-            if (self.xkLoginAction) self.xkLoginAction();
-        }
-        else {
-            if (self.xkReqeustCompletedButFailedAction) self.xkReqeustCompletedButFailedAction(code, message);
-        }
-    }
-    else {
-        if (success) {
-            success(responseObject,[responseObject objectForKey:@"data"],result,message);
-        }
-    }
-}
-- (void)xk_JsonPostRequestWithUrlString:(NSString *)urlString progress:(void (^)(CGFloat))progress parameters:(id)parameters success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *, NSInteger))failure {
+    
+//    NSString *message = [responseObject objectForKey:self.messageKey];
+//    NSInteger code    = [[responseObject objectForKey:self.codeKey] integerValue];
+//    BOOL result       = code == self.successfulCode;
+//
+//    if (result == NO) {
+//
+//        if (failure) {
+//            failure(nil, message, code);
+//        }
+//        //未登录
+//        if ([[responseObject objectForKey:self.codeKey] integerValue] == self.logoutCode) {
+//
+//            if (self.xkLoginAction) self.xkLoginAction();
+//        }
+//        else {
+//            if (self.xkReqeustCompletedButFailedAction) self.xkReqeustCompletedButFailedAction(code, message);
+//        }
+//    }
+//    else {
+//        if (success) {
+//            success(responseObject,[responseObject objectForKey:@"data"],result,message);
+//        }
+//    }
+//}
+- (NSURLSessionDataTask *)xk_JsonPostRequestWithUrlString:(NSString *)urlString progress:(void (^)(CGFloat))progress parameters:(id)parameters success:(void (^)(NSDictionary *, id, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *, NSInteger))failure {
     
     if (self.baseURL && [urlString containsString:@"http"] == NO) {
         urlString = [self.baseURL stringByAppendingPathComponent:urlString];
@@ -227,7 +234,7 @@
     self.sessionManager.requestSerializer = [AFJSONRequestSerializer serializer];
     !self.xkConfigSessionManager ?: self.xkConfigSessionManager(self.sessionManager);
     
-    self.lastPOSTTask = [self.sessionManager POST:urlString parameters:parameters progress:^(NSProgress * _Nonnull uploadProgress) {
+    NSURLSessionDataTask *task = self.lastPOSTTask = [self.sessionManager POST:urlString parameters:parameters progress:^(NSProgress * _Nonnull uploadProgress) {
         //上传进度
         if (progress) progress(uploadProgress.fractionCompleted);
         
@@ -247,6 +254,7 @@
         
     }];
     
+    return task;
 }
 
 #pragma mark - 取消task
@@ -260,7 +268,7 @@
     [self.sessionManager.operationQueue cancelAllOperations];
 }
 #pragma mark - 上传图片
-- (void)xk_uploadImages:(NSArray *)images toURL:(NSString *)urlString parameters:(id)parameters progress:(void (^)(CGFloat, NSInteger))progress success:(void (^)(id, NSInteger, BOOL))success failure:(void (^)(NSError *, NSInteger))failure {
+- (NSURLSessionDataTask *)xk_uploadImages:(NSArray *)images toURL:(NSString *)urlString parameters:(id)parameters progress:(void (^)(CGFloat, NSInteger))progress success:(void (^)(id, NSInteger, BOOL))success failure:(void (^)(NSError *, NSInteger))failure {
     
     if (self.baseURL && [urlString containsString:@"http"] == NO) {
         urlString = [self.baseURL stringByAppendingPathComponent:urlString];
@@ -268,13 +276,13 @@
     NSLog(@"path: %@\nparameters: %@",urlString,parameters);
     
     !self.xkConfigSessionManager ?: self.xkConfigSessionManager(self.sessionManager);
-    [self _uploadImages:images toURL:urlString parameters:parameters progress:progress success:success failure:failure index:0];
+    return [self _uploadImages:images toURL:urlString parameters:parameters progress:progress success:success failure:failure index:0];
     
 }
-- (void)_uploadImages:(NSArray *)images toURL:(NSString *)urlString parameters:(id)parameters progress:(void (^)(CGFloat progress, NSInteger index))progress success:(void (^)(id responseObject, NSInteger index, BOOL finished))success failure:(void (^)(NSError *error, NSInteger index))failure index:(NSInteger)index {
+- (NSURLSessionDataTask *)_uploadImages:(NSArray *)images toURL:(NSString *)urlString parameters:(id)parameters progress:(void (^)(CGFloat progress, NSInteger index))progress success:(void (^)(id responseObject, NSInteger index, BOOL finished))success failure:(void (^)(NSError *error, NSInteger index))failure index:(NSInteger)index {
     
     XKWeakSelf
-    [self.sessionManager POST:urlString parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+    NSURLSessionDataTask *task = [self.sessionManager POST:urlString parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
         id imageData = [images firstObject];
         if ([imageData isKindOfClass:[UIImage class]]) {
             imageData = UIImageJPEGRepresentation(imageData, 0.5);
@@ -311,10 +319,11 @@
         }
     }];
     
+    return task;
 }
 
 #pragma mark 批量上传图片
-- (void)xk_uploadImages:(NSArray *)images toURL:(NSString *)urlString parameters:(id)parameters imageNmaes:(NSArray *)imageNames progress:(void (^)(CGFloat))progress success:(void (^)(NSDictionary *, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *))failure {
+- (NSURLSessionDataTask *)xk_uploadImages:(NSArray *)images toURL:(NSString *)urlString parameters:(id)parameters imageNmaes:(NSArray *)imageNames progress:(void (^)(CGFloat))progress success:(void (^)(NSDictionary *, BOOL, NSString *))success failure:(void (^)(NSError *, NSString *))failure {
     
     if (self.baseURL && [urlString containsString:@"http"] == NO) {
         urlString = [self.baseURL stringByAppendingPathComponent:urlString];
@@ -323,7 +332,7 @@
     
     !self.xkConfigSessionManager ?: self.xkConfigSessionManager(self.sessionManager);
     XKWeakSelf
-    [self.sessionManager POST:urlString parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+    NSURLSessionDataTask *task = [self.sessionManager POST:urlString parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
         
         if (images.count > 0) {
             
@@ -378,9 +387,10 @@
         if (failure) failure(error,errorMsg);
     }];
     
+    return task;
 }
 #pragma mark 上传视频
-- (void)xk_uploadVideos:(NSArray *)videos toURL:(NSString *)urlString parameters:(id)parameters videoNmaes:(NSArray *)videoNames progress:(void (^)(CGFloat progress))progress success:(void (^)(NSDictionary *responseDict, BOOL result, NSString *message))success failure:(void (^)(NSError *error, NSString *errorMessage))failure {
+- (NSURLSessionDataTask *)xk_uploadVideos:(NSArray *)videos toURL:(NSString *)urlString parameters:(id)parameters videoNmaes:(NSArray *)videoNames progress:(void (^)(CGFloat progress))progress success:(void (^)(NSDictionary *responseDict, BOOL result, NSString *message))success failure:(void (^)(NSError *error, NSString *errorMessage))failure {
     
     if (self.baseURL && [urlString containsString:@"http"] == NO) {
         urlString = [self.baseURL stringByAppendingPathComponent:urlString];
@@ -389,7 +399,7 @@
     
     !self.xkConfigSessionManager ?: self.xkConfigSessionManager(self.sessionManager);
     XKWeakSelf
-    [self.sessionManager POST:urlString parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+    NSURLSessionDataTask *task = [self.sessionManager POST:urlString parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
         
         if (videos.count > 0) {
             
@@ -430,6 +440,7 @@
         if (failure) failure(error,errorMsg);
     }];
     
+    return task;
 }
 
 @end
