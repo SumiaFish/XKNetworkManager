@@ -41,6 +41,7 @@
     XKNetworkingSucc __succ;
     XKNetworkingFailed __failed;
     XKNetworkingFinaly __finaly;
+    NSURLSessionDataTask *__task;
 }
 
 - (instancetype)init {
@@ -49,9 +50,7 @@
         __weak typeof(self) weakself = self;
         
         self.manager = ^XKNetworking * _Nullable(XKNetworkingConfManager setter) {
-            if (setter) {
-                setter([weakself sessionManager]);
-            }
+            setter([weakself sessionManager]);
             return weakself;
         };
         
@@ -107,18 +106,33 @@
 
 - (void)impSend {
     if (self->__methond.integerValue == XKNetworkingMethond_GET) {
-        [XKNetworkManager.shareManager xk_GETRequestWithUrlString:self->__url parameters:self->__params progress:self->__progress success:^(NSDictionary *responseDict, id dataValue, BOOL result, NSString *errorMessage) {
+        self->__task = [XKNetworkManager.shareManager xk_GETRequestWithUrlString:self->__url parameters:self->__params progress:^(CGFloat progress) {
+            self->__progress(progress, self->__task);
             
-        } failure:<#^(NSError *error, NSString *errorMessage, NSInteger code)failure#>]
+        } success:^(NSDictionary *responseDict, id dataValue, BOOL result, NSString *errorMessage) {
+            self->__succ(responseDict, self->__task);
+            
+        } failure:^(NSError *error, NSString *errorMessage, NSInteger code) {
+            self->__failed(error, self->__task);
+            
+        }];
         
     } else if (self->__methond.integerValue == XKNetworkingMethond_POST) {
+        self->__task = [XKNetworkManager.shareManager xk_POSTRequestWithUrlString:self->__url parameters:self->__params progress:^(CGFloat progress) {
+            self->__progress(progress, self->__task);
+            
+        } success:^(NSDictionary *responseDict, id dataValue, BOOL result, NSString *errorMessage) {
+            self->__succ(responseDict, self->__task);
+            
+        } failure:^(NSError *error, NSString *errorMessage, NSInteger code) {
+            self->__failed(error, self->__task);
+            
+        }];
         
     } else if (self->__methond.integerValue == XKNetworkingMethond_UPLOAD) {
+     
         
     }
-    
-    
-    
 }
 
 + (AFHTTPSessionManager *)sessionManager {
@@ -127,6 +141,22 @@
 
 - (AFHTTPSessionManager *)sessionManager {
     return [self.class sessionManager];
+}
+
+- (NSURLSessionDataTask *)task {
+    return __task;
+}
+
+- (NSString *)urlString {
+    return __url;
+}
+
+- (NSDictionary *)paramsDict {
+    return __params;
+}
+
+- (XKNetworking_Methond)methondValue {
+    return __methond.integerValue;
 }
 
 @end

@@ -149,8 +149,8 @@
         if (progress) progress(downloadProgress.fractionCompleted);
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        
-        [weakSelf successfulAction:responseObject success:success failure:failure];
+        !success ?: success(responseObject, nil, YES, @"");
+//        [weakSelf successfulAction:responseObject success:success failure:failure];
         
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSString *errorMsg = nil;
@@ -241,7 +241,8 @@
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         
         weakSelf.sessionManager.requestSerializer = [AFHTTPRequestSerializer serializer];
-        [weakSelf successfulAction:responseObject success:success failure:failure];
+        !success ?: success(responseObject, nil, YES, @"");
+//        [weakSelf successfulAction:responseObject success:success failure:failure];
         
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         

@@ -56,6 +56,10 @@ typedef void (^ XKNetworkingSend) (void);
 
 + (AFHTTPSessionManager *)sessionManager;
 - (AFHTTPSessionManager *)sessionManager;
+- (NSURLSessionDataTask *)task;
+- (NSString *)urlString;
+- (NSDictionary *)paramsDict;
+- (XKNetworking_Methond)methondValue;
 
 @end
 
