@@ -12,8 +12,15 @@
 @implementation Test
 
 - (void)todo {
-    XKNetworking.new.url(@"")
+    XKNetworking.new
+        .url(@"")
         .params(@{})
+        .interceptor(^BOOL(NSString * _Nonnull url, NSDictionary * _Nonnull params) {
+            return YES;
+        })
+        .willSend(^(NSString * _Nonnull url, NSDictionary * _Nonnull params) {
+            
+        })
         .progress(^(CGFloat progress, NSURLSessionDataTask * _Nonnull task) {
             
         })

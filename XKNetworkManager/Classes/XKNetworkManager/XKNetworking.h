@@ -28,6 +28,10 @@ typedef void (^ XKNetworkingSucc) (id response, NSURLSessionDataTask *task);
 
 typedef NSError* _Nullable (^ XKNetworkingHandleResponse) (id response, NSURLSessionDataTask *task);
 
+typedef BOOL (^ XKNetworkingInterceptor) (NSString *url, NSDictionary *params);
+
+typedef void (^ XKNetworkingWillSend) (NSString *url, NSDictionary *params);
+
 typedef void (^ XKNetworkingFailed) (NSError *error, NSURLSessionDataTask *task);
 
 typedef void (^ XKNetworkingFinaly) (NSError * _Nullable error, id _Nullable response, NSURLSessionDataTask *task);
@@ -55,6 +59,10 @@ typedef void (^ XKNetworkingSend) (void);
 @property (copy, nonatomic, readonly)  XKNetworking* _Nullable (^ finaly) (XKNetworkingFinaly setter);
 
 @property (copy, nonatomic, readonly)  XKNetworking* _Nullable (^ handleResponse) (XKNetworkingHandleResponse setter);
+
+@property (copy, nonatomic, readonly)  XKNetworking* _Nullable (^ interceptor) (XKNetworkingInterceptor setter);
+
+@property (copy, nonatomic, readonly)  XKNetworking* _Nullable (^ willSend) (XKNetworkingWillSend setter);
 
 @property (copy, nonatomic, readonly) XKNetworkingSend send;
 

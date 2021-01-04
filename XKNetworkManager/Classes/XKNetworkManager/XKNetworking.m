@@ -30,6 +30,10 @@
 
 @property (copy, nonatomic, readwrite)  XKNetworking* _Nullable (^ handleResponse) (XKNetworkingHandleResponse setter);
 
+@property (copy, nonatomic, readwrite)  XKNetworking* _Nullable (^ interceptor) (XKNetworkingInterceptor setter);
+
+@property (copy, nonatomic, readwrite)  XKNetworking* _Nullable (^ willSend) (XKNetworkingWillSend setter);
+
 @property (copy, nonatomic, readwrite) XKNetworkingSend send;
 
 @end
@@ -44,6 +48,8 @@
     XKNetworkingFailed __failed;
     XKNetworkingFinaly __finaly;
     XKNetworkingHandleResponse __handleResponse;
+    XKNetworkingInterceptor __interceptor;
+    XKNetworkingWillSend __willSend;
     NSURLSessionDataTask *__task;
 }
 
@@ -105,6 +111,18 @@
             return weakself;
         };
         
+        self.interceptor = ^XKNetworking * _Nullable(XKNetworkingInterceptor setter) {
+            __strong typeof(weakself) strongSelf = weakself;
+            strongSelf->__interceptor = [setter copy];
+            return weakself;
+        };
+        
+        self.willSend = ^XKNetworking * _Nullable(XKNetworkingWillSend setter) {
+            __strong typeof(weakself) strongSelf = weakself;
+            strongSelf->__willSend = [setter copy];
+            return weakself;
+        };
+        
         self.send = ^{
             [weakself impSend];
         };
@@ -114,7 +132,15 @@
 }
 
 - (void)impSend {
+    // 拦截请求
+    if (![self onInterceptor]) {
+        return;
+    }
+    
+    // 开始请求
     if (self->__methond.integerValue == XKNetworkingMethond_GET) {
+        [self willSend];
+        
         self->__task = [XKNetworkManager.shareManager xk_GETRequestWithUrlString:self->__url parameters:self->__params progress:^(CGFloat progress) {
             [self onProgress:progress];
             
@@ -127,6 +153,8 @@
         }];
         
     } else if (self->__methond.integerValue == XKNetworkingMethond_POST) {
+        [self willSend];
+        
         self->__task = [XKNetworkManager.shareManager xk_POSTRequestWithUrlString:self->__url parameters:self->__params progress:^(CGFloat progress) {
             [self onProgress:progress];
             
@@ -141,6 +169,20 @@
     } else if (self->__methond.integerValue == XKNetworkingMethond_UPLOAD) {
      
         
+    }
+}
+
+- (BOOL)onInterceptor {
+    if (self->__interceptor) {
+        return self->__interceptor(self->__url, self->__params);
+    }
+    
+    return YES;
+}
+
+- (void)onWillSend {
+    if (self->__willSend) {
+        self->__willSend(self->__url, self->__params);
     }
 }
 
