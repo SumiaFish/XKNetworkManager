@@ -28,6 +28,8 @@
 
 @property (copy, nonatomic, readwrite)  XKNetworking* _Nullable (^ finaly) (XKNetworkingFinaly setter);
 
+@property (copy, nonatomic, readwrite)  XKNetworking* _Nullable (^ handleResponse) (XKNetworkingHandleResponse setter);
+
 @property (copy, nonatomic, readwrite) XKNetworkingSend send;
 
 @end
@@ -41,6 +43,7 @@
     XKNetworkingSucc __succ;
     XKNetworkingFailed __failed;
     XKNetworkingFinaly __finaly;
+    XKNetworkingHandleResponse __handleResponse;
     NSURLSessionDataTask *__task;
 }
 
@@ -72,27 +75,33 @@
             return weakself;
         };
         
-        self.succ = ^XKNetworking * _Nullable(XKNetworkingSucc setter) {
+        self.succ = ^(XKNetworkingSucc setter) {
             __strong typeof(weakself) strongSelf = weakself;
             strongSelf->__succ = [setter copy];
             return weakself;
         };
         
-        self.progress = ^XKNetworking * _Nullable(XKNetworkingProgress setter) {
+        self.progress = ^(XKNetworkingProgress setter) {
             __strong typeof(weakself) strongSelf = weakself;
             strongSelf->__progress = [setter copy];
             return weakself;
         };
         
-        self.failed = ^XKNetworking * _Nullable(XKNetworkingFailed setter) {
+        self.failed = ^(XKNetworkingFailed setter) {
             __strong typeof(weakself) strongSelf = weakself;
             strongSelf->__failed = [setter copy];
             return weakself;
         };
         
-        self.finaly = ^XKNetworking * _Nullable(XKNetworkingFinaly setter) {
+        self.finaly = ^(XKNetworkingFinaly setter) {
             __strong typeof(weakself) strongSelf = weakself;
             strongSelf->__finaly = [setter copy];
+            return weakself;
+        };
+        
+        self.handleResponse = ^XKNetworking * _Nullable(XKNetworkingHandleResponse setter) {
+            __strong typeof(weakself) strongSelf = weakself;
+            strongSelf->__handleResponse = [setter copy];
             return weakself;
         };
         
@@ -107,25 +116,25 @@
 - (void)impSend {
     if (self->__methond.integerValue == XKNetworkingMethond_GET) {
         self->__task = [XKNetworkManager.shareManager xk_GETRequestWithUrlString:self->__url parameters:self->__params progress:^(CGFloat progress) {
-            self->__progress(progress, self->__task);
+            [self onProgress:progress];
             
         } success:^(NSDictionary *responseDict, id dataValue, BOOL result, NSString *errorMessage) {
-            self->__succ(responseDict, self->__task);
+            [self onSucc:responseDict];
             
         } failure:^(NSError *error, NSString *errorMessage, NSInteger code) {
-            self->__failed(error, self->__task);
+            [self onFailed:error];
             
         }];
         
     } else if (self->__methond.integerValue == XKNetworkingMethond_POST) {
         self->__task = [XKNetworkManager.shareManager xk_POSTRequestWithUrlString:self->__url parameters:self->__params progress:^(CGFloat progress) {
-            self->__progress(progress, self->__task);
+            [self onProgress:progress];
             
         } success:^(NSDictionary *responseDict, id dataValue, BOOL result, NSString *errorMessage) {
-            self->__succ(responseDict, self->__task);
+            [self onSucc:responseDict];
             
         } failure:^(NSError *error, NSString *errorMessage, NSInteger code) {
-            self->__failed(error, self->__task);
+            [self onFailed:error];
             
         }];
         
@@ -133,6 +142,26 @@
      
         
     }
+}
+
+- (void)onProgress:(CGFloat)progress {
+    self->__progress(progress, self->__task);
+}
+
+- (void)onSucc:(id)responseObject {
+    if (self->__handleResponse) {
+        NSError *error = self->__handleResponse(responseObject, self->__task);
+        if (error) {
+            [self onFailed:error];
+            return;
+        }
+    }
+    
+    self->__succ(responseObject, self->__task);
+}
+
+- (void)onFailed:(NSError *)error {
+    self->__failed(error, self->__task);
 }
 
 + (AFHTTPSessionManager *)sessionManager {

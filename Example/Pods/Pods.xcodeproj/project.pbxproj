@@ -11,6 +11,8 @@
 		0254EABA2D0AACFBFA5E2BAD753C5E2D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29670A9A26E9266FE6E8455C11E3127C /* Foundation.framework */; };
 		0423A112259DDB1E007C6A2D /* XKNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = 0423A110259DDB1E007C6A2D /* XKNetworking.m */; };
 		0423A113259DDB1E007C6A2D /* XKNetworking.h in Headers */ = {isa = PBXBuildFile; fileRef = 0423A111259DDB1E007C6A2D /* XKNetworking.h */; };
+		0437E23025A2BB9300DDDB61 /* Test.h in Headers */ = {isa = PBXBuildFile; fileRef = 0437E22E25A2BB9300DDDB61 /* Test.h */; };
+		0437E23125A2BB9300DDDB61 /* Test.m in Sources */ = {isa = PBXBuildFile; fileRef = 0437E22F25A2BB9300DDDB61 /* Test.m */; };
 		08C4A3DCE906897D9FDE09E93F44A428 /* Pods-XKNetworkManager_Tests-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = F607C0B6E4277D579F63B720A29865EE /* Pods-XKNetworkManager_Tests-dummy.m */; };
 		09E2F57C3C2B897ACC8AF5C49F1E9592 /* UIImage+AFNetworking.h in Headers */ = {isa = PBXBuildFile; fileRef = 8183D84E7E1FF32F88394E250E835526 /* UIImage+AFNetworking.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		09E785555B549DE5974C744DB8324B91 /* UIRefreshControl+AFNetworking.h in Headers */ = {isa = PBXBuildFile; fileRef = DD797E9FB8FD88C20B9BBACA96FC0B16 /* UIRefreshControl+AFNetworking.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -99,6 +101,8 @@
 		02E303CEC05132478C8D988B56F493D5 /* UIProgressView+AFNetworking.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = "UIProgressView+AFNetworking.h"; path = "UIKit+AFNetworking/UIProgressView+AFNetworking.h"; sourceTree = "<group>"; };
 		0423A110259DDB1E007C6A2D /* XKNetworking.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = XKNetworking.m; path = XKNetworkManager/Classes/XKNetworkManager/XKNetworking.m; sourceTree = "<group>"; };
 		0423A111259DDB1E007C6A2D /* XKNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XKNetworking.h; path = XKNetworkManager/Classes/XKNetworkManager/XKNetworking.h; sourceTree = "<group>"; };
+		0437E22E25A2BB9300DDDB61 /* Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Test.h; sourceTree = "<group>"; };
+		0437E22F25A2BB9300DDDB61 /* Test.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Test.m; sourceTree = "<group>"; };
 		05564E5F8F8A98A917200D87229F683F /* AFNetworkReachabilityManager.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = AFNetworkReachabilityManager.m; path = AFNetworking/AFNetworkReachabilityManager.m; sourceTree = "<group>"; };
 		0C495C5316C891FEEE18057F20265F17 /* AFURLSessionManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = AFURLSessionManager.h; path = AFNetworking/AFURLSessionManager.h; sourceTree = "<group>"; };
 		0CCC085AE7F0764C82944FB38326C2C2 /* AFNetworking-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "AFNetworking-dummy.m"; sourceTree = "<group>"; };
@@ -431,6 +435,8 @@
 				0423A110259DDB1E007C6A2D /* XKNetworking.m */,
 				DB88C7986146E43AAEC517C6BCE78155 /* XKNetworkManager.h */,
 				4FCC44CD3A32896183329BC8812B6961 /* XKNetworkManager.m */,
+				0437E22E25A2BB9300DDDB61 /* Test.h */,
+				0437E22F25A2BB9300DDDB61 /* Test.m */,
 				F39E5D36674825B3EB0E563606D9DFD8 /* Pod */,
 				93169F9AFA6D7E5430524C0B1DAC66B7 /* Support Files */,
 			);
@@ -467,6 +473,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0437E23025A2BB9300DDDB61 /* Test.h in Headers */,
 				17C149518330E2000ABA7A50577BF8B5 /* XKNetworkManager-umbrella.h in Headers */,
 				0423A113259DDB1E007C6A2D /* XKNetworking.h in Headers */,
 				AAA5AB600AD50B0AD71934CBDA614B69 /* XKNetworkManager.h in Headers */,
@@ -662,6 +669,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DF1E53C070A1F4A7A400C4CB759A0CA3 /* XKNetworkManager-dummy.m in Sources */,
+				0437E23125A2BB9300DDDB61 /* Test.m in Sources */,
 				254A182B529BC438851817DA856A26CC /* XKNetworkManager.m in Sources */,
 				0423A112259DDB1E007C6A2D /* XKNetworking.m in Sources */,
 			);

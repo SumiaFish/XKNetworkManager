@@ -22,13 +22,15 @@ typedef XKNetworking* _Nullable (^ XKNetworkingSetter) (id value);
 
 typedef XKNetworking* _Nullable (^ XKNetworkingConfManager) (AFHTTPSessionManager *manager);
 
-typedef XKNetworking* _Nullable (^ XKNetworkingProgress) (CGFloat progress, NSURLSessionDataTask *task);
+typedef void (^ XKNetworkingProgress) (CGFloat progress, NSURLSessionDataTask *task);
 
-typedef XKNetworking* _Nullable (^ XKNetworkingSucc) (id response, NSURLSessionDataTask *task);
+typedef void (^ XKNetworkingSucc) (id response, NSURLSessionDataTask *task);
 
-typedef XKNetworking* _Nullable (^ XKNetworkingFailed) (NSError *error, NSURLSessionDataTask *task);
+typedef NSError* _Nullable (^ XKNetworkingHandleResponse) (id response, NSURLSessionDataTask *task);
 
-typedef XKNetworking* _Nullable (^ XKNetworkingFinaly) (NSError * _Nullable error, id _Nullable response, NSURLSessionDataTask *task);
+typedef void (^ XKNetworkingFailed) (NSError *error, NSURLSessionDataTask *task);
+
+typedef void (^ XKNetworkingFinaly) (NSError * _Nullable error, id _Nullable response, NSURLSessionDataTask *task);
 
 typedef void (^ XKNetworkingSend) (void);
 
@@ -51,6 +53,8 @@ typedef void (^ XKNetworkingSend) (void);
 @property (copy, nonatomic, readonly)  XKNetworking* _Nullable (^ failed) (XKNetworkingFailed setter);
 
 @property (copy, nonatomic, readonly)  XKNetworking* _Nullable (^ finaly) (XKNetworkingFinaly setter);
+
+@property (copy, nonatomic, readonly)  XKNetworking* _Nullable (^ handleResponse) (XKNetworkingHandleResponse setter);
 
 @property (copy, nonatomic, readonly) XKNetworkingSend send;
 
