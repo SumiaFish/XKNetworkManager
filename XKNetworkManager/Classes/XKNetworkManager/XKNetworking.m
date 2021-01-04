@@ -34,6 +34,8 @@
 
 @property (copy, nonatomic, readwrite)  XKNetworking* _Nullable (^ willSend) (XKNetworkingWillSend setter);
 
+@property (copy, nonatomic, readwrite) XKNetworkingSetter retry;
+
 @property (copy, nonatomic, readwrite) XKNetworkingSend send;
 
 @end
@@ -50,6 +52,7 @@
     XKNetworkingHandleResponse __handleResponse;
     XKNetworkingInterceptor __interceptor;
     XKNetworkingWillSend __willSend;
+    NSNumber *__retry;
     NSURLSessionDataTask *__task;
 }
 
@@ -120,6 +123,12 @@
         self.willSend = ^XKNetworking * _Nullable(XKNetworkingWillSend setter) {
             __strong typeof(weakself) strongSelf = weakself;
             strongSelf->__willSend = [setter copy];
+            return weakself;
+        };
+        
+        self.retry = ^XKNetworking * _Nullable(id  _Nonnull value) {
+            __strong typeof(weakself) strongSelf = weakself;
+            strongSelf->__retry = [value isKindOfClass:NSNumber.class] ? [value copy] : @(0);
             return weakself;
         };
         
@@ -203,6 +212,12 @@
 }
 
 - (void)onFailed:(NSError *)error {
+    if (self->__retry.integerValue > 0) {
+        self->__retry = @(MAX(self->__retry.integerValue - 1, 0));
+        [self->__task resume];
+        return;
+    }
+    
     self->__failed(error, self->__task);
 }
 

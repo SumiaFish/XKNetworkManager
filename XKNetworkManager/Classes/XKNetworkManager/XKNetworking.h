@@ -64,6 +64,8 @@ typedef void (^ XKNetworkingSend) (void);
 
 @property (copy, nonatomic, readonly)  XKNetworking* _Nullable (^ willSend) (XKNetworkingWillSend setter);
 
+@property (copy, nonatomic, readonly) XKNetworkingSetter retry;
+
 @property (copy, nonatomic, readonly) XKNetworkingSend send;
 
 + (AFHTTPSessionManager *)sessionManager;

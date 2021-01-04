@@ -15,6 +15,7 @@
     XKNetworking.new
         .url(@"")
         .params(@{})
+        .retry(@(1))
         .interceptor(^BOOL(NSString * _Nonnull url, NSDictionary * _Nonnull params) {
             return YES;
         })
