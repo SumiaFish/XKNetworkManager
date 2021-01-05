@@ -7,6 +7,33 @@
 
 #import "XKNetworking.h"
 
+@interface XKNetworkingCenter : NSObject
+
+@property (strong, nonatomic) NSMutableSet *tasks;
+
+@end
+
+@implementation XKNetworkingCenter
+
++ (instancetype)shareManager {
+    static XKNetworkingCenter *manager = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        manager = [XKNetworkingCenter new];
+    });
+    return manager;
+}
+
+- (NSMutableSet *)tasks {
+    if (!_tasks) {
+        _tasks = NSMutableSet.set;
+    }
+    
+    return _tasks;
+}
+
+@end
+
 @interface XKNetworking ()
 
 @property (copy, nonatomic, readwrite) XKNetworking* _Nullable (^ manager) (void (^) (AFHTTPSessionManager *manager));
@@ -185,8 +212,12 @@
 }
 
 - (void)impSend {
+    //
+    [[XKNetworkingCenter shareManager].tasks addObject:self];
+    
     // 拦截请求
     if (![self onInterceptor]) {
+        [[XKNetworkingCenter shareManager].tasks removeObject:self];
         return;
     }
     
@@ -265,6 +296,7 @@
 
 - (void)onFinaly:(NSError *)error responseObject:(id)responseObject {
     !self->__finaly ?: self->__finaly(error, responseObject, self->__task);
+    [[XKNetworkingCenter shareManager].tasks removeObject:self];
 }
 
 - (AFHTTPSessionManager *)sessionManager {
@@ -377,6 +409,8 @@ XKNetworking* XKN(void) {
 }
 
 - (void)impSend {
+    [[XKNetworkingCenter shareManager].tasks addObject:self];
+    
     if (self.type == XKNetworkingMergeType_Any ||
         self.type == XKNetworkingMergeType_All) {
         [self.requests enumerateObjectsUsingBlock:^(XKNetworking * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
@@ -452,6 +486,8 @@ XKNetworking* XKN(void) {
 
 - (void)onFinaly {
     !self->__finaly ?: self->__finaly(self.errorMap, self.succMap);
+    
+    [[XKNetworkingCenter shareManager].tasks removeObject:self];
     
     self->__progress = nil;
     self->__succ = nil;
