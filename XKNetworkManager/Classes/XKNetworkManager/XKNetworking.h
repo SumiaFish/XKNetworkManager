@@ -20,8 +20,6 @@ typedef NS_ENUM(NSInteger, XKNetworking_Methond) {
 
 typedef XKNetworking* _Nullable (^ XKNetworkingSetter) (id value);
 
-typedef XKNetworking* _Nullable (^ XKNetworkingConfManager) (AFHTTPSessionManager *manager);
-
 typedef void (^ XKNetworkingProgress) (CGFloat progress, NSURLSessionDataTask *task);
 
 typedef void (^ XKNetworkingSucc) (id response, NSURLSessionDataTask *task);
@@ -40,7 +38,7 @@ typedef void (^ XKNetworkingSend) (void);
 
 @interface XKNetworking : NSObject
 
-@property (copy, nonatomic, readonly) XKNetworkingConfManager manager;
+@property (copy, nonatomic, readonly) XKNetworking* _Nullable (^ manager) (AFHTTPSessionManager *manager);
 
 @property (copy, nonatomic, readonly) XKNetworkingSetter url;
 

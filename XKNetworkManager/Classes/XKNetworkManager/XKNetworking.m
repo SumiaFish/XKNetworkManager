@@ -9,7 +9,7 @@
 
 @interface XKNetworking ()
 
-@property (copy, nonatomic, readwrite) XKNetworkingConfManager manager;
+@property (copy, nonatomic, readwrite) XKNetworking* _Nullable (^ manager) (AFHTTPSessionManager *manager);
 
 @property (copy, nonatomic, readwrite) XKNetworkingSetter url;
 
@@ -104,7 +104,7 @@
         
         __weak typeof(self) weakself = self;
         
-        self.manager = ^XKNetworking * _Nullable(AFHTTPSessionManager * _Nonnull manager) {
+        self.manager = ^XKNetworking * _Nullable(AFHTTPSessionManager *manager) {
             __strong typeof(weakself) strongSelf = weakself;
             strongSelf->__manager = manager;
             return weakself;
