@@ -248,6 +248,7 @@
     
     !self->__succ ?: self->__succ(responseObject, self->__task);
     [self onFinaly:nil responseObject:responseObject];
+    [self.container onSucc:responseObject task:self];
 }
 
 - (void)onFailed:(NSError *)error {
@@ -259,6 +260,7 @@
     
     !self->__failed ?: self->__failed(error, self->__task);
     [self onFinaly:error responseObject:nil];
+    [self.container onFailed:error task:self];
 }
 
 - (void)onFinaly:(NSError *)error responseObject:(id)responseObject {
