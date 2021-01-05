@@ -6,17 +6,14 @@
 //
 
 #import "XKNetworking.h"
-#import <XKNetworkManager/XKNetworkManager-umbrella.h>
 
 @interface XKNetworking ()
 
-@property (copy, nonatomic, readwrite) XKNetworking* _Nullable (^ manager) (XKNetworkingConfManager setter);
+@property (copy, nonatomic, readwrite) XKNetworkingConfManager manager;
 
 @property (copy, nonatomic, readwrite) XKNetworkingSetter url;
 
 @property (copy, nonatomic, readwrite) XKNetworkingSetter methond;
-
-//@property (copy, nonatomic, readonly) XKNetworkingSetter path;
 
 @property (copy, nonatomic, readwrite) XKNetworkingSetter params;
 
@@ -82,6 +79,7 @@
 
 @implementation XKNetworking
 {
+    AFHTTPSessionManager *__manager;
     NSString *__url;
     NSNumber *__methond;
     NSDictionary *__params;
@@ -99,10 +97,16 @@
 - (instancetype)init {
     if (self = [super init]) {
         
+        AFHTTPSessionManager *sessionManager = [AFHTTPSessionManager manager];
+        sessionManager.requestSerializer  = [AFHTTPRequestSerializer serializer];
+        sessionManager.responseSerializer = [AFJSONResponseSerializer serializer];
+        __manager = sessionManager;
+        
         __weak typeof(self) weakself = self;
         
-        self.manager = ^XKNetworking * _Nullable(XKNetworkingConfManager setter) {
-            setter([weakself sessionManager]);
+        self.manager = ^XKNetworking * _Nullable(AFHTTPSessionManager * _Nonnull manager) {
+            __strong typeof(weakself) strongSelf = weakself;
+            strongSelf->__manager = manager;
             return weakself;
         };
         
@@ -190,13 +194,13 @@
     if (self->__methond.integerValue == XKNetworkingMethond_GET) {
         [self willSend];
         
-        self->__task = [XKNetworkManager.shareManager xk_GETRequestWithUrlString:self->__url parameters:self->__params progress:^(CGFloat progress) {
-            [self onProgress:progress];
+        self->__task = [self.sessionManager GET:self->__url parameters:self->__params progress:^(NSProgress * _Nonnull downloadProgress) {
+            [self onProgress:downloadProgress.fractionCompleted];
             
-        } success:^(NSDictionary *responseDict, id dataValue, BOOL result, NSString *errorMessage) {
-            [self onSucc:responseDict];
+        } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            [self onSucc:responseObject];
             
-        } failure:^(NSError *error, NSString *errorMessage, NSInteger code) {
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
             [self onFailed:error];
             
         }];
@@ -204,13 +208,13 @@
     } else if (self->__methond.integerValue == XKNetworkingMethond_POST) {
         [self willSend];
         
-        self->__task = [XKNetworkManager.shareManager xk_POSTRequestWithUrlString:self->__url parameters:self->__params progress:^(CGFloat progress) {
-            [self onProgress:progress];
+        self->__task = [self.sessionManager POST:self->__url parameters:self->__params progress:^(NSProgress * _Nonnull downloadProgress) {
+            [self onProgress:downloadProgress.fractionCompleted];
             
-        } success:^(NSDictionary *responseDict, id dataValue, BOOL result, NSString *errorMessage) {
-            [self onSucc:responseDict];
+        } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            [self onSucc:responseObject];
             
-        } failure:^(NSError *error, NSString *errorMessage, NSInteger code) {
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
             [self onFailed:error];
             
         }];
@@ -261,12 +265,8 @@
     !self->__finaly ?: self->__finaly(error, responseObject, self->__task);
 }
 
-+ (AFHTTPSessionManager *)sessionManager {
-    return XKNetworkManager.shareManager.sessionManager;
-}
-
 - (AFHTTPSessionManager *)sessionManager {
-    return [self.class sessionManager];
+    return __manager;
 }
 
 - (NSURLSessionDataTask *)task {

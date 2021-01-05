@@ -40,13 +40,11 @@ typedef void (^ XKNetworkingSend) (void);
 
 @interface XKNetworking : NSObject
 
-@property (copy, nonatomic, readonly) XKNetworking* _Nullable (^ manager) (XKNetworkingConfManager setter);
+@property (copy, nonatomic, readonly) XKNetworkingConfManager manager;
 
 @property (copy, nonatomic, readonly) XKNetworkingSetter url;
 
 @property (copy, nonatomic, readonly) XKNetworkingSetter methond;
-
-//@property (copy, nonatomic, readonly) XKNetworkingSetter path;
 
 @property (copy, nonatomic, readonly) XKNetworkingSetter params;
 
@@ -70,7 +68,6 @@ typedef void (^ XKNetworkingSend) (void);
 
 @property (copy, nonatomic, readonly) NSString *identifier;
 
-+ (AFHTTPSessionManager *)sessionManager;
 - (AFHTTPSessionManager *)sessionManager;
 - (NSURLSessionDataTask *)task;
 - (NSString *)urlValue;
