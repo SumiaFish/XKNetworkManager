@@ -347,12 +347,12 @@ XKNetworking* XKN(void) {
     XKNetworkingContainer *res = XKNetworkingContainer.new;
     res.type = XKNetworkingMergeType_All;
     NSMutableDictionary *map = NSMutableDictionary.dictionary;
-    res.requestsMap = map;
     res.requests = requests ? requests.copy : @[];
     [res.requests enumerateObjectsUsingBlock:^(XKNetworking * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         obj.container = res;
         map[obj.identifier] = obj;
     }];
+    res.requestsMap = map.copy;
     return res;
 }
 
@@ -360,12 +360,12 @@ XKNetworking* XKN(void) {
     XKNetworkingContainer *res = XKNetworkingContainer.new;
     res.type = XKNetworkingMergeType_Any;
     NSMutableDictionary *map = NSMutableDictionary.dictionary;
-    res.requestsMap = map;
     res.requests = requests ? requests.copy : @[];
     [res.requests enumerateObjectsUsingBlock:^(XKNetworking * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         obj.container = res;
         map[obj.identifier] = obj;
     }];
+    res.requestsMap = map.copy;
     return res;
 }
 
@@ -373,12 +373,12 @@ XKNetworking* XKN(void) {
     XKNetworkingContainer *res = XKNetworkingContainer.new;
     res.type = XKNetworkingMergeType_Sequence;
     NSMutableDictionary *map = NSMutableDictionary.dictionary;
-    res.requestsMap = map;
     res.requests = requests ? requests.copy : @[];
     [res.requests enumerateObjectsUsingBlock:^(XKNetworking * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         obj.container = res;
         map[obj.identifier] = obj;
     }];
+    res.requestsMap = map.copy;
     return res;
 }
 
