@@ -86,6 +86,8 @@
 
 @property (copy, nonatomic, readwrite) NSArray<XKNetworking *> *requests;
 
+@property (copy, nonatomic, readwrite) NSDictionary<NSString *, XKNetworking *> *requestsMap;
+
 @property (copy, nonatomic, readwrite) NSString *identifier;
 
 @property (strong, nonatomic) NSMutableDictionary<NSString *, NSNumber *> *progressMap;
@@ -344,9 +346,12 @@ XKNetworking* XKN(void) {
 + (instancetype)all:(NSArray<XKNetworking *> *)requests {
     XKNetworkingContainer *res = XKNetworkingContainer.new;
     res.type = XKNetworkingMergeType_All;
+    NSMutableDictionary *map = NSMutableDictionary.dictionary;
+    res.requestsMap = map;
     res.requests = requests ? requests.copy : @[];
     [res.requests enumerateObjectsUsingBlock:^(XKNetworking * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         obj.container = res;
+        map[obj.identifier] = obj;
     }];
     return res;
 }
@@ -354,9 +359,12 @@ XKNetworking* XKN(void) {
 + (instancetype)any:(NSArray<XKNetworking *> *)requests {
     XKNetworkingContainer *res = XKNetworkingContainer.new;
     res.type = XKNetworkingMergeType_Any;
+    NSMutableDictionary *map = NSMutableDictionary.dictionary;
+    res.requestsMap = map;
     res.requests = requests ? requests.copy : @[];
     [res.requests enumerateObjectsUsingBlock:^(XKNetworking * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         obj.container = res;
+        map[obj.identifier] = obj;
     }];
     return res;
 }
@@ -364,9 +372,12 @@ XKNetworking* XKN(void) {
 + (instancetype)sequence:(NSArray<XKNetworking *> *)requests {
     XKNetworkingContainer *res = XKNetworkingContainer.new;
     res.type = XKNetworkingMergeType_Sequence;
+    NSMutableDictionary *map = NSMutableDictionary.dictionary;
+    res.requestsMap = map;
     res.requests = requests ? requests.copy : @[];
     [res.requests enumerateObjectsUsingBlock:^(XKNetworking * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         obj.container = res;
+        map[obj.identifier] = obj;
     }];
     return res;
 }
@@ -425,7 +436,7 @@ XKNetworking* XKN(void) {
 
 - (void)onProgress:(CGFloat)progress task:(XKNetworking *)task {
     self.progressMap[task.identifier] = [[NSNumber alloc] initWithFloat:progress];
-    !self->__progress ?: self->__progress(self.progressMap);
+    !self->__progress ?: self->__progress(self, self.progressMap);
 }
 
 - (void)onSucc:(id)responseObject task:(XKNetworking *)task {
@@ -434,14 +445,14 @@ XKNetworking* XKN(void) {
     self.succMap[task.identifier] = responseObject;
     
     if (self.type == XKNetworkingMergeType_Any) {
-        !self->__succ ?: self->__succ(self.succMap);
+        !self->__succ ?: self->__succ(self, self.succMap);
         [self onFinaly];
         return;
     }
     
     if (self.type == XKNetworkingMergeType_All) {
         if (self.completedTasks.count >= self.requests.count) {
-            !self->__succ ?: self->__succ(self.succMap);
+            !self->__succ ?: self->__succ(self, self.succMap);
             [self onFinaly];
         }
         return;
@@ -449,7 +460,7 @@ XKNetworking* XKN(void) {
     
     if (self.type == XKNetworkingMergeType_Sequence) {
         if (self.completedTasks.count >= self.requests.count) {
-            !self->__succ ?: self->__succ(self.succMap);
+            !self->__succ ?: self->__succ(self, self.succMap);
             [self onFinaly];
         } else {
             self.requests[self.completedTasks.count].send();
@@ -465,27 +476,27 @@ XKNetworking* XKN(void) {
     
     if (self.type == XKNetworkingMergeType_Any) {
         if (self.requests.count >= self.completedTasks.count) {
-            !self->__failed ?: self->__failed(self.errorMap, self.succMap);
+            !self->__failed ?: self->__failed(self, self.errorMap, self.succMap);
             [self finaly];
         }
         return;
     }
     
     if (self.type == XKNetworkingMergeType_All) {
-        !self->__failed ?: self->__failed(self.errorMap, self.succMap);
+        !self->__failed ?: self->__failed(self, self.errorMap, self.succMap);
         [self onFinaly];
         return;
     }
     
     if (self.type == XKNetworkingMergeType_Sequence) {
-        !self->__failed ?: self->__failed(self.errorMap, self.succMap);
+        !self->__failed ?: self->__failed(self, self.errorMap, self.succMap);
         [self onFinaly];
         return;
     }
 }
 
 - (void)onFinaly {
-    !self->__finaly ?: self->__finaly(self.errorMap, self.succMap);
+    !self->__finaly ?: self->__finaly(self, self.errorMap, self.succMap);
     
     [[XKNetworkingCenter shareManager].tasks removeObject:self];
     

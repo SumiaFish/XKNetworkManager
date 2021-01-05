@@ -78,13 +78,13 @@ typedef void (^ XKNetworkingSend) (void);
 
 typedef XKNetworkingContainer* _Nullable (^ XKNetworkingContainerSetter) (id value);
 
-typedef void (^ XKNetworkingContainerProgress) (NSDictionary<NSString *, NSNumber *> *progressMap);
+typedef void (^ XKNetworkingContainerProgress) (XKNetworkingContainer *container, NSDictionary<NSString *, NSNumber *> *progressMap);
 
-typedef void (^ XKNetworkingContainerSucc) (NSDictionary<NSString *, id> *responseMap);
+typedef void (^ XKNetworkingContainerSucc) (XKNetworkingContainer *container, NSDictionary<NSString *, id> *responseMap);
 
-typedef void (^ XKNetworkingContainerFailed) (NSDictionary<NSString *, NSError *> *errorMap, NSDictionary<NSString *, id> *responseMap);
+typedef void (^ XKNetworkingContainerFailed) (XKNetworkingContainer *container, NSDictionary<NSString *, NSError *> *errorMap, NSDictionary<NSString *, id> *responseMap);
 
-typedef void (^ XKNetworkingContainerFinaly) (NSDictionary<NSString *, NSError *> *errorMap, NSDictionary<NSString *, id> *responseMap);
+typedef void (^ XKNetworkingContainerFinaly) (XKNetworkingContainer *container, NSDictionary<NSString *, NSError *> *errorMap, NSDictionary<NSString *, id> *responseMap);
 
 typedef void (^ XKNetworkingContainerSend) (void);
 
@@ -107,6 +107,8 @@ typedef NS_ENUM(NSInteger, XKNetworkingMergeType) {
 @property (copy, nonatomic, readonly) XKNetworkingContainerSend send;
 
 @property (copy, nonatomic, readonly) NSArray<XKNetworking *> *requests;
+
+@property (copy, nonatomic, readonly) NSDictionary<NSString *, XKNetworking *> *requestsMap;
 
 @property (assign, nonatomic, readonly) XKNetworkingMergeType type;
 
