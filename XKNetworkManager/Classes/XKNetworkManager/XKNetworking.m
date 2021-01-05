@@ -6,7 +6,7 @@
 //
 
 #import "XKNetworking.h"
-#import "XKNetworkManager.h"
+#import <XKNetworkManager/XKNetworkManager-umbrella.h>
 
 @interface XKNetworking ()
 
@@ -37,6 +37,46 @@
 @property (copy, nonatomic, readwrite) XKNetworkingSetter retry;
 
 @property (copy, nonatomic, readwrite) XKNetworkingSend send;
+
+@property (copy, nonatomic, readwrite) NSString *identifier;
+
+@property (weak, nonatomic) XKNetworkingContainer *container;
+
+@end
+
+@interface XKNetworkingContainer ()
+
+@property (copy, nonatomic, readwrite)  XKNetworkingContainer* _Nullable (^ progress) (XKNetworkingContainerProgress setter);
+
+@property (copy, nonatomic, readwrite)  XKNetworkingContainer* _Nullable (^ succ) (XKNetworkingContainerSucc setter);
+
+@property (copy, nonatomic, readwrite)  XKNetworkingContainer* _Nullable (^ failed) (XKNetworkingContainerFailed setter);
+
+@property (copy, nonatomic, readwrite)  XKNetworkingContainer* _Nullable (^ finaly) (XKNetworkingContainerFinaly setter);
+
+@property (copy, nonatomic, readwrite) XKNetworkingContainerSetter retry;
+
+@property (copy, nonatomic, readwrite) XKNetworkingSend send;
+
+@property (nonatomic, assign, readwrite) XKNetworkingMergeType type;
+
+@property (copy, nonatomic, readwrite) NSArray<XKNetworking *> *requests;
+
+@property (copy, nonatomic, readwrite) NSString *identifier;
+
+@property (strong, nonatomic) NSMutableDictionary<NSString *, NSNumber *> *progressMap;
+
+@property (strong, nonatomic) NSMutableDictionary<NSString *, id> *succMap;
+
+@property (strong, nonatomic) NSMutableDictionary<NSString *, NSError *> *errorMap;
+
+@property (strong, nonatomic) NSMutableOrderedSet<NSString *> *completedTasks;
+
+- (void)onProgress:(CGFloat)progress task:(XKNetworking *)task;
+
+- (void)onSucc:(id)responseObject task:(XKNetworking *)task;
+
+- (void)onFailed:(NSError *)error task:(XKNetworking *)task;
 
 @end
 
@@ -209,6 +249,7 @@
     }
     
     self->__succ(responseObject, self->__task);
+    [self onFinaly:nil responseObject:responseObject];
 }
 
 - (void)onFailed:(NSError *)error {
@@ -219,6 +260,11 @@
     }
     
     self->__failed(error, self->__task);
+    [self onFinaly:error responseObject:nil];
+}
+
+- (void)onFinaly:(NSError *)error responseObject:(id)responseObject {
+    self->__finaly(error, responseObject, self->__task);
 }
 
 + (AFHTTPSessionManager *)sessionManager {
@@ -233,11 +279,11 @@
     return __task;
 }
 
-- (NSString *)urlString {
+- (NSString *)urlValue {
     return __url;
 }
 
-- (NSDictionary *)paramsDict {
+- (NSDictionary *)paramsValue {
     return __params;
 }
 
@@ -245,8 +291,192 @@
     return __methond.integerValue;
 }
 
+- (NSString *)identifier {
+    if (!_identifier) {
+        _identifier = NSUUID.UUID.UUIDString;
+    }
+    
+    return _identifier;
+}
+
 @end
 
 XKNetworking* XKN(void) {
     return XKNetworking.new;
 }
+
+@implementation XKNetworkingContainer
+{
+    XKNetworkingContainerProgress __progress;
+    XKNetworkingContainerSucc __succ;
+    XKNetworkingContainerFailed __failed;
+    XKNetworkingContainerFinaly __finaly;
+}
+
++ (instancetype)all:(NSArray<XKNetworking *> *)requests {
+    XKNetworkingContainer *res = XKNetworkingContainer.new;
+    res.type = XKNetworkingMergeType_All;
+    res.requests = requests ? requests.copy : @[];
+    [res.requests enumerateObjectsUsingBlock:^(XKNetworking * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        obj.container = res;
+    }];
+    return res;
+}
+
++ (instancetype)any:(NSArray<XKNetworking *> *)requests {
+    XKNetworkingContainer *res = XKNetworkingContainer.new;
+    res.type = XKNetworkingMergeType_Any;
+    res.requests = requests ? requests.copy : @[];
+    [res.requests enumerateObjectsUsingBlock:^(XKNetworking * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        obj.container = res;
+    }];
+    return res;
+}
+
++ (instancetype)sequence:(NSArray<XKNetworking *> *)requests {
+    XKNetworkingContainer *res = XKNetworkingContainer.new;
+    res.type = XKNetworkingMergeType_Sequence;
+    res.requests = requests ? requests.copy : @[];
+    [res.requests enumerateObjectsUsingBlock:^(XKNetworking * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        obj.container = res;
+    }];
+    return res;
+}
+
+- (instancetype)init {
+    if (self = [super init]) {
+        
+        __weak typeof(self) weakself = self;
+        
+        self.succ = ^(XKNetworkingContainerSucc setter) {
+            __strong typeof(weakself) strongSelf = weakself;
+            strongSelf->__succ = [setter copy];
+            return weakself;
+        };
+        
+        self.progress = ^(XKNetworkingContainerProgress setter) {
+            __strong typeof(weakself) strongSelf = weakself;
+            strongSelf->__progress = [setter copy];
+            return weakself;
+        };
+        
+        self.failed = ^(XKNetworkingContainerFailed setter) {
+            __strong typeof(weakself) strongSelf = weakself;
+            strongSelf->__failed = [setter copy];
+            return weakself;
+        };
+        
+        self.finaly = ^(XKNetworkingContainerFinaly setter) {
+            __strong typeof(weakself) strongSelf = weakself;
+            strongSelf->__finaly = [setter copy];
+            return weakself;
+        };
+        
+        self.send = ^{
+            [weakself impSend];
+        };
+    }
+    
+    return self;
+}
+
+- (void)impSend {
+    if (self.type == XKNetworkingMergeType_Any ||
+        self.type == XKNetworkingMergeType_All) {
+        [self.requests enumerateObjectsUsingBlock:^(XKNetworking * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            obj.send();
+        }];
+    }
+    
+    else if (self.type == XKNetworkingMergeType_Sequence) {
+        self.requests.firstObject.send();
+    }
+}
+
+- (void)onProgress:(CGFloat)progress task:(XKNetworking *)task {
+    self.progressMap[task.identifier] = [[NSNumber alloc] initWithFloat:progress];
+    self->__progress(self.progressMap);
+}
+
+- (void)onSucc:(id)responseObject task:(XKNetworking *)task {
+    [self.completedTasks addObject:task.identifier];
+    
+    self.succMap[task.identifier] = responseObject;
+    
+    if (self.type == XKNetworkingMergeType_Any) {
+        self->__succ(self.succMap);
+        [self onFinaly];
+        return;
+    }
+    
+    if (self.type == XKNetworkingMergeType_All) {
+        if (self.completedTasks.count >= self.requests.count) {
+            self->__succ(self.succMap);
+            [self onFinaly];
+        }
+        return;
+    }
+    
+    if (self.type == XKNetworkingMergeType_Sequence) {
+        if (self.completedTasks.count >= self.requests.count) {
+            self->__succ(self.succMap);
+            [self onFinaly];
+        } else {
+            self.requests[self.completedTasks.count].send();
+        }
+        return;
+    }
+}
+
+- (void)onFailed:(NSError *)error task:(XKNetworking *)task {
+    [self.completedTasks addObject:task.identifier];
+    
+    self.errorMap[task.identifier] = error;
+    
+    if (self.type == XKNetworkingMergeType_Any) {
+        if (self.requests.count >= self.completedTasks.count) {
+            self->__failed(self.errorMap, self.succMap);
+            [self finaly];
+        }
+        return;
+    }
+    
+    if (self.type == XKNetworkingMergeType_All) {
+        self->__failed(self.errorMap, self.succMap);
+        [self onFinaly];
+        return;
+    }
+    
+    if (self.type == XKNetworkingMergeType_Sequence) {
+        self->__failed(self.errorMap, self.succMap);
+        [self onFinaly];
+        return;
+    }
+}
+
+- (void)onFinaly {
+    self->__finaly(self.errorMap, self.succMap);
+    
+    self->__progress = nil;
+    self->__succ = nil;
+    self->__failed = nil;
+    self->__finaly = nil;
+}
+
+- (NSMutableOrderedSet<NSString *> *)completedTasks {
+    if (!_completedTasks) {
+        _completedTasks = NSMutableOrderedSet.orderedSet;
+    }
+    
+    return _completedTasks;
+}
+
+- (NSString *)identifier {
+    if (!_identifier) {
+        _identifier = NSUUID.UUID.UUIDString;
+    }
+    
+    return _identifier;
+}
+
+@end
