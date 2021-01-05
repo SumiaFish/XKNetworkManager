@@ -222,21 +222,15 @@
 }
 
 - (BOOL)onInterceptor {
-    if (self->__interceptor) {
-        return self->__interceptor(self->__url, self->__params);
-    }
-    
-    return YES;
+    return !self->__interceptor ? YES : self->__interceptor(self->__url, self->__params);
 }
 
 - (void)onWillSend {
-    if (self->__willSend) {
-        self->__willSend(self->__url, self->__params);
-    }
+    !self->__willSend ?: self->__willSend(self->__url, self->__params);
 }
 
 - (void)onProgress:(CGFloat)progress {
-    self->__progress(progress, self->__task);
+    !self->__progress ?: self->__progress(progress, self->__task);
 }
 
 - (void)onSucc:(id)responseObject {
@@ -248,7 +242,7 @@
         }
     }
     
-    self->__succ(responseObject, self->__task);
+    !self->__succ ?: self->__succ(responseObject, self->__task);
     [self onFinaly:nil responseObject:responseObject];
 }
 
@@ -259,12 +253,12 @@
         return;
     }
     
-    self->__failed(error, self->__task);
+    !self->__failed ?: self->__failed(error, self->__task);
     [self onFinaly:error responseObject:nil];
 }
 
 - (void)onFinaly:(NSError *)error responseObject:(id)responseObject {
-    self->__finaly(error, responseObject, self->__task);
+    !self->__finaly ?: self->__finaly(error, responseObject, self->__task);
 }
 
 + (AFHTTPSessionManager *)sessionManager {
@@ -395,7 +389,7 @@ XKNetworking* XKN(void) {
 
 - (void)onProgress:(CGFloat)progress task:(XKNetworking *)task {
     self.progressMap[task.identifier] = [[NSNumber alloc] initWithFloat:progress];
-    self->__progress(self.progressMap);
+    !self->__progress ?: self->__progress(self.progressMap);
 }
 
 - (void)onSucc:(id)responseObject task:(XKNetworking *)task {
@@ -404,14 +398,14 @@ XKNetworking* XKN(void) {
     self.succMap[task.identifier] = responseObject;
     
     if (self.type == XKNetworkingMergeType_Any) {
-        self->__succ(self.succMap);
+        !self->__succ ?: self->__succ(self.succMap);
         [self onFinaly];
         return;
     }
     
     if (self.type == XKNetworkingMergeType_All) {
         if (self.completedTasks.count >= self.requests.count) {
-            self->__succ(self.succMap);
+            !self->__succ ?: self->__succ(self.succMap);
             [self onFinaly];
         }
         return;
@@ -419,7 +413,7 @@ XKNetworking* XKN(void) {
     
     if (self.type == XKNetworkingMergeType_Sequence) {
         if (self.completedTasks.count >= self.requests.count) {
-            self->__succ(self.succMap);
+            !self->__succ ?: self->__succ(self.succMap);
             [self onFinaly];
         } else {
             self.requests[self.completedTasks.count].send();
@@ -435,32 +429,56 @@ XKNetworking* XKN(void) {
     
     if (self.type == XKNetworkingMergeType_Any) {
         if (self.requests.count >= self.completedTasks.count) {
-            self->__failed(self.errorMap, self.succMap);
+            !self->__failed ?: self->__failed(self.errorMap, self.succMap);
             [self finaly];
         }
         return;
     }
     
     if (self.type == XKNetworkingMergeType_All) {
-        self->__failed(self.errorMap, self.succMap);
+        !self->__failed ?: self->__failed(self.errorMap, self.succMap);
         [self onFinaly];
         return;
     }
     
     if (self.type == XKNetworkingMergeType_Sequence) {
-        self->__failed(self.errorMap, self.succMap);
+        !self->__failed ?: self->__failed(self.errorMap, self.succMap);
         [self onFinaly];
         return;
     }
 }
 
 - (void)onFinaly {
-    self->__finaly(self.errorMap, self.succMap);
+    !self->__finaly ?: self->__finaly(self.errorMap, self.succMap);
     
     self->__progress = nil;
     self->__succ = nil;
     self->__failed = nil;
     self->__finaly = nil;
+}
+
+- (NSMutableDictionary<NSString *,id> *)succMap {
+    if (!_succMap) {
+        _succMap = NSMutableDictionary.dictionary;
+    }
+    
+    return _succMap;
+}
+
+- (NSMutableDictionary<NSString *,NSError *> *)errorMap {
+    if (!_errorMap) {
+        _errorMap = NSMutableDictionary.dictionary;
+    }
+    
+    return _errorMap;
+}
+
+- (NSMutableDictionary<NSString *,NSNumber *> *)progressMap {
+    if (!_progressMap) {
+        _progressMap = NSMutableDictionary.dictionary;
+    }
+    
+    return _progressMap;
 }
 
 - (NSMutableOrderedSet<NSString *> *)completedTasks {
