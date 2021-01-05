@@ -38,7 +38,7 @@ typedef void (^ XKNetworkingSend) (void);
 
 @interface XKNetworking : NSObject
 
-@property (copy, nonatomic, readonly) XKNetworking* _Nullable (^ manager) (AFHTTPSessionManager *manager);
+@property (copy, nonatomic, readonly) XKNetworking* _Nullable (^ manager) (void (^) (AFHTTPSessionManager *manager));
 
 @property (copy, nonatomic, readonly) XKNetworkingSetter url;
 
